@@ -1,0 +1,22 @@
+<template>
+  <view class='about-ctner'>
+      换货
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class ExchangeGoods extends wepy.page {
+  config = {
+    navigationBarTitleText: '换货'
+  };
+  components = {
+  };
+  data = { };
+  methods = {
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

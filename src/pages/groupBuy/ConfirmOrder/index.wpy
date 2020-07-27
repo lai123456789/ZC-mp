@@ -1,0 +1,226 @@
+<template>
+  <view class='address-list-ctner'>
+    <view class="addl-new">
+      <view class="A1">
+        <view class="addl-one" @tap="toAddressA">
+          <image src='../../../images/location_a.png'></image>
+          <text>收货地址</text>
+          <image src='../../../images/unfold.png'></image>
+        </view>
+        <view class="addl-two">{{addressInfo.str}}</view>
+      </view>
+      <view class="A2">
+        <view class="index">
+          <view class="I1-index">
+            <view class="I1">
+              <image src='../../../images/123.png'></image>
+            </view>
+            <view class="I1-text">
+              <view class="I1-div">
+                <view>
+                  <view>选择商品</view>
+                  <view>开团/参团</view>
+                </view>
+                <view>
+                  <view>邀请好友</view>
+                  <view>好友参团</view>
+                </view>
+                <view>
+                  <view>人满成团</view>
+                  <view>等待收货</view>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="I2">
+            <view class="T1-one-div">
+              <view class="">
+                <image src='{{orderInfo.goodsIcon}}'></image>
+                <view class="center-text">
+                  <view>{{orderInfo.goodsName}}</view>
+                  <view>{{orderInfo.goodsSpecification}}</view>
+                  <view>
+                    <text>￥{{orderInfo.groupPrice}}</text>
+                    <text>￥{{orderInfo.originalPrice}}</text>
+                  </view>
+                </view>
+              </view>
+              <view>
+                <view>
+                  <image src="../../../images/tuoyuan.png"></image>
+                  <text>{{orderInfo.groupNumber}}人团</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="addl-list-outer">
+        <view hover-class='icx-click-hover' class="addl-list-item">
+          <view class="addl-list-word">
+            <view>
+              <image src="../../../images/WX.png"></image>
+              <text>微信支付</text>
+            </view>
+          </view>
+          <view class="addl-edit">
+            <image class="addl-img-b" src='../../../images/WX-right.png'></image>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="addl-list-outer-bottom">   <!--底部div-->
+    <view hover-class='icx-click-hover' class="addl-list-item">
+      <view class="addl-list-word">
+        <view>
+          <text>实付款</text>
+          <text>￥{{orderInfo.groupPrice}}</text>
+        </view>
+      </view>
+      <view class="addl-edit"  @tap="pay">
+        立即支付
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { apiFindDefAddressF } from '../../../services/mine/index'
+  import {
+    apiPurchaseGetOrderInfoF,
+    apiPurchaseOrderPayF } from '../../../services/index/index'
+  import miniPro from '@/utils/wepy-pro.js';
+  export default class AddressList extends wepy.page {
+    config = {
+      navigationBarTitleText: '确定订单'
+    };
+    components = {
+    };
+    data = {
+      activityId: '',
+      tempEcNo:"",
+      createFlag: '',
+      orderMasterId: '',
+      groupId: '',
+      groupUserDetailId: '',
+      orderInfo: {
+        // goodsIcon: "",
+        // goodsName: "",
+        // goodsSpecification: "",
+        // groupNumber: '',
+        // groupPrice: '',
+        // originalPrice: ''
+      },
+      addressInfo: {
+        str: '',
+        id: ''
+      }
+    };
+    methods = {
+      toAddressA() {
+        wepy.navigateTo({ url: `/pages/packageMine/addressList/index` });
+      },
+      pay(fun) {
+        if (!this.addressInfo.id) {
+          miniPro.showToast('请选择地址');
+          return;
+        }
+        let payParam = {
+          // activityId: this.activityId,
+          addressId: this.addressInfo.id,
+          tempEcNo: this.tempEcNo
+        };
+        // if (this.orderMasterId) {
+        //   payParam['orderMasterId'] = this.orderMasterId;
+        // }
+        // if (this.groupUserDetailId) {
+        //   payParam['groupUserDetailId'] = this.groupUserDetailId;
+        // }
+
+        apiPurchaseOrderPayF(payParam, fun).then(msg => {
+          let data = msg
+          console.log("data",data)
+          let t = this
+          let param = data.payInfo  // md5、随机串等 传给接口 吊起支付控件完成支付
+          miniPro.requestPayment(param).then((result) => {
+            miniPro.showToast('支付成功')
+            setTimeout(() => {
+              wepy.navigateTo({ url: `/pages/groupBuy/ApplySuccess/index?groupId=` + data.groupInfo.id })
+            }, 1500)
+          }).catch(() => {
+            miniPro.showToast('支付失败')
+            setTimeout(() => {
+              wepy.navigateTo({ url: `/pages/packageMine/payFail/index` })
+            }, 1500)
+          });
+        }).catch(() => { });
+      }
+    };
+    getDefaultAddress(fun) {
+      apiFindDefAddressF(fun).then((result) => {
+        if (result) {
+          this.addressInfo = {
+            id: result.id,
+            str: result.province + result.city + result.district + result.address
+          };
+        }
+        this.$apply()
+      }).catch(() => { });
+    };
+    init (fun) {
+      let param = {};
+      if (this.orderMasterId) {
+        param['orderMasterId'] = this.orderMasterId
+        // param['groupId'] = this.orderMasterId
+      }
+      if (this.groupId) {
+        param['groupId'] = this.groupId
+      }
+      if (this.activityId) {
+        param['activityId'] = this.activityId
+      }
+      if (this.createFlag) {
+        param['createFlag'] = this.createFlag
+      }
+      if (this.shareId) {
+        param['shareId'] = this.shareId
+      }
+      apiPurchaseGetOrderInfoF(param , fun).then((result) => {
+        this.orderInfo = result.groupPrepareVo
+        this.tempEcNo = result.tempEcNo
+        this.groupUserDetailId = result.groupUserDetailId;
+        if (result.addressId){
+          this.addressInfo = {
+            str: result.addressStr,
+            id: result.addressId
+          }
+        } else {
+          this.getDefaultAddress()
+        }
+        this.activityId = result.activityId;
+        this.$apply()
+      }).catch(() => { })
+    }
+    onLoad(options) {
+      this.orderMasterId = options.orderMasterId;
+      this.createFlag = options.createFlag;
+      this.groupId = options.groupId;
+      this.shareId = options.shareId;
+      this.activityId = options.activityId;
+      this.init(this.init.bind(this));
+    }
+    onShow() {
+      let { addressStr, addressId } = wepy.$instance.globalData.addressObj;
+      if (addressId) {
+        this.addressInfo.str = addressStr
+        this.addressInfo.id = addressId
+      }
+    }
+  }
+</script>
+<style lang="scss" scoped>
+  @import './index';
+</style>

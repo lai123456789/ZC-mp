@@ -1,0 +1,25 @@
+<template>
+  <view class='contact-ctner'>
+      <view class="word">
+        <text class="word-b">公司电话</text>：0755-26929276
+      </view>
+      <view class="word">
+        <text class="word-b">联系地址</text>：深圳市宝安区航城街道航城智慧科技园B栋811室
+      </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Contact extends wepy.page {
+  config = {
+    navigationBarTitleText: '联系我们'
+  };
+  components = {
+  };
+  data = { };
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

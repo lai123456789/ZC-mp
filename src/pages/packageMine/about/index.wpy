@@ -1,0 +1,20 @@
+<template>
+  <view class='about-ctner'>
+      <view class="word">
+          <text class="word-b">真成优选</text>
+        作为一个电商平台开发服务商，秉承服务好每一位客户的真诚态度，为真成客户提供全套的、专业的、完美的一站式电商运营解决方案。真成优选彻底颠覆了传统的B2C商业模式，打造绝佳用户体验。凭借供货商入驻、买卖家分离、智能管理会员积分系统、分享佣金管理、商品团购、订单中心强化等卓尔不凡的功能优势受到广大用户的青睐，从根源上解决了电商企业普遍存在的推广、招商、盈利等问题。平台自营产品与供应商产品共存的模式，极大地丰富了平台商品，是成功电商企业的选择！
+      </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class About extends wepy.page {
+  config = {
+    navigationBarTitleText: '关于我们'
+  };
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

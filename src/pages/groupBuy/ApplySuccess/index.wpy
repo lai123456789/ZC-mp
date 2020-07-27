@@ -1,0 +1,211 @@
+
+<template>
+  <view class="cart-ctner container-same">
+    <wxs src="../../../utils/filter.wxs" module="tools"></wxs>
+
+    <view class="cart-con-outer">
+      <view class="cart-goods-outer">
+        <view class="T1">
+          <view class="T1-one-div">
+            <view class="">
+              <image src='{{goodsInfo.goodsIco}}'></image>
+              <view class="center-text">
+                <view>{{goodsInfo.goodsName}}</view>
+                <view>{{goodsInfo.goodsSpecification}}</view>
+                <view>
+                  <text>￥{{goodsInfo.groupPrice}}</text>
+                  <text>￥{{goodsInfo.originalPrice}}</text>
+                </view>
+              </view>
+            </view>
+            <view>
+              <view>
+                <image src="../../../images/tuoyuan.png"></image>
+                <text>{{goodsInfo.groupNum}}人团</text>
+              </view>
+            </view>
+          </view>
+          <view class="T1-two-div">
+            <view wx:for="{{groupList}}" wx:key="index" wx:if="{{idx <= 9 }}"  wx:for-index="idx" class="group-member">
+              <image src='{{item.headImage}}'  ></image>
+              <view class="nameText" wx:if="{{groupList.length <= 4}}">{{item.nickName}}</view>
+              <view wx:else>
+                <view wx:if="{{idx == 0}}">团长</view>
+              </view>
+            </view>
+            <view wx:if="{{surperson > 0}}">
+              <image src='../../../images/add1.png'></image>
+              <view class="else">还差{{surperson}}人</view>
+            </view>
+          </view>
+          <view></view>
+        </view>
+        <view class="T2">
+          <view wx:if="{{goodsInfo.currentNum < goodsInfo.groupNum}}">
+            <button open-type='share' class="share-button">
+              <image src='../../../images/Yao.png'></image>
+              <text>支付成功，点击邀请好友参团</text>
+<!--              <text style="margin-left:15rpx">{{surplus}}</text>-->
+<!--              <text>后结束</text>-->
+            </button>
+          </view>
+          <view wx:else @tap="toOrderList">
+            <button  class="share-button">
+              <text>拼团成功，等候发货</text>
+            </button>
+          </view>
+<!--          <view wx:if="{{surplusMember > 0}}">-->
+<!--            <image src='../../../images/zhuyi.png'></image>-->
+<!--            <text>分享到2个微信群,成功率高达95%</text>-->
+<!--          </view>-->
+        </view>
+      </view>
+      <view class="cart-like" wx:if="{{pageLikeList.length > 0}}">
+        <view class="cart-like-title">·猜您喜欢·</view>
+        <view class='cat-container'>
+          <view @tap="toGoodsDetail({{item}})" class="cat-like-item" wx:for="{{pageLikeList}}" wx:key="index">
+            <image src="{{item.goodsIco}}"></image>
+            <view class="cart-l-des">{{item.goodsShortName}}</view>
+            <view class="cart-l-description">{{item.goodsDescription}}</view>
+            <view class="cart-l-price">￥{{item.price}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy';
+
+  import {
+    apiGoodsLikePageF, apiGroupInfoF, apiPurchaseShareInfoF
+  } from '../../../services/index/index';
+  import miniPro from '@/utils/wepy-pro.js';
+  import CatItem from '@/components/catItem/index';
+  import countDown from '@/utils/date.js'
+  import { apiInfoF } from '../../../services/cart';
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '支付成功'
+    };
+    components = {
+      CatItem: CatItem
+    };
+    mixins = [];
+    data = {
+      userId:"",
+      sk:"",
+      groupList:[],
+      pageParamsLike: {
+        page: 0,
+        limit: 100
+      },
+      pageLikeList: [],
+      orderId: '',
+      createFlag:'',
+      surperson:'',
+      goodsInfo: {
+
+      },
+      shareInfo: {
+        title: '',
+        imageUrl: '',
+        sharegroupId: ''
+      },
+      groupInfo: {
+        list: [],
+        id: ''
+      },
+      surplus: '',
+      endTime: '',
+      surplusMember: '',
+      internal: ''
+    };
+
+    methods = {
+      toGoodsDetail(item) {
+        miniPro.toGoodsDetail(item.id, item.groupPurchase)
+      }
+    };
+    apiGoodsLikePageFA(fun) {
+      apiGoodsLikePageF({
+        page: this.pageParamsLike.page,
+        limit: this.pageParamsLike.limit
+      }, fun).then((result) => {
+        let { rows } = result
+        this.pageLikeList = rows
+        this.$apply();
+      }).catch(() => { });
+    };
+    init(fun){
+      // let param = {};
+      // if (this.groupId) {
+      //   param['groupId'] = this.groupId
+      // }
+      let t = this
+      let groupId = t.groupId
+      apiGroupInfoF(groupId,fun).then((result) => {
+        t.goodsInfo = result
+        t.surperson = result.groupNum - result.currentNum
+        let groups = [];
+        if(result.members.length > 0){
+          for(let x in result.members){
+            groups[x] = result.members[x];
+          }
+        }
+        t.groupList = groups;
+        t.$apply();
+        this.getPurchaseShareInfo(this.getPurchaseShareInfo.bind(this));
+      }).catch(() => { })
+    };
+    getPurchaseShareInfo(fun){
+      let groupId = this.groupId
+      let param = {
+        groupId: groupId
+      };
+      apiPurchaseShareInfoF(param,fun).then((result)=> {
+        this.shareInfo.title = result.shareTitle;
+        this.shareInfo.imageUrl = result.shareImageUrl;
+        this.shareInfo.sharegroupId = groupId;
+        this.$apply();
+      }).catch(()=>{})
+    };
+    apiGetInfoFA(fun) { //获取用户信息 手机号
+      let _self = this
+      apiInfoF(fun).then(msg => {
+        _self.userId = msg.userId
+        _self.sk = Math.random().toString(21).substr(4);
+        _self.$apply();
+      }).catch(() => { });
+    }
+    onShareAppMessage(res) {
+      let _userId = this.userId
+      let _sk = this.sk
+      let _groupId = this.shareInfo.sharegroupId
+      return {
+        title: this.shareInfo.title,
+        path: `/pages/groupBuy/OnekeyDelegation/index?groupId=${_groupId}&si=${_userId}&sk=${_sk}`,
+      imageUrl: this.shareInfo.imageUrl
+      }
+    };
+    toOrderList(){
+      wepy.navigateTo({ url: `/pages/packageMine/order/index?current=0` });
+    }
+    watch = {
+    }
+    events = {
+    };
+    onLoad(options){
+      this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //获取userId
+      this.groupId = options.groupId;
+      this.apiGoodsLikePageFA(this.apiGoodsLikePageFA.bind(this))
+      this.init(this.init.bind(this));
+    };
+    onUnload(){
+      clearInterval(this.internal);
+    }
+  }
+</script>
+<style lang="scss">
+  @import './index.scss';
+</style>

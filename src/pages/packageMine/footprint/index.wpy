@@ -1,0 +1,61 @@
+<template>
+  <view class='footprint-ctner'>
+    <repeat for="{{footArr}}" key="index" index="index" item="item">
+      <CatItem class='cat-itme-wrap' :current="index" :item="item"></CatItem>
+    </repeat>
+    <view class="collection-no" wx:if="{{footArr.length == 0}}">
+      <view class="in">
+        <image src='../../../images/foot_icon.png'></image>
+        <view>暂无足迹</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import CatItem from '@/components/FootGoodCom/index';
+import { apiFootFindPageF, apiFootDeleteF } from '../../../services/mine/index'
+import miniPro from '@/utils/wepy-pro.js';
+import UrlNavigate from '../../../utils/wepyNavigate';
+export default class Footprint extends wepy.page {
+  config = {
+    // navigationBarBackgroundColor: '#09103b',
+    // navigationBarTextStyle: '#FFF',
+    navigationBarTitleText: '我的足迹'
+  };
+  components = {
+    CatItem: CatItem
+  };
+  data = {
+    footArr: []
+  };
+  events = {
+    'look-event': function (id,shareKey,shareUserId,room_id) {
+      let url = '/pages/packageIndex/goodsDetail/index'
+      UrlNavigate(url,{goodsId:id,sk:shareKey,si:shareUserId,collect_room_id:room_id});
+    }
+  }
+  apiFootFindPageA(fun) {
+    apiFootFindPageF({
+      page: 0,
+      limit: 200
+    }, fun).then((result) => {
+      let { rows } = result
+      this.footArr = rows
+      this.$apply()
+    }).catch(() => { });
+  }
+  apiFootDeleteA(fun) {
+    apiFootDeleteF('20190509153955704421', fun).then((result) => {
+    }).catch(() => { })
+  }
+
+  onLoad() {
+    this.apiFootFindPageA(this.apiFootFindPageA.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

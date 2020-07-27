@@ -1,0 +1,120 @@
+<template>
+  <view class="cat-item-ctner" @tap='toGoodsA'>
+    <view class='cat-m'>
+        <image src='{{item.goodsIco}}' />
+    </view>
+    <view class="cat-m-t">
+        <view class='goods-name'>{{item.goodsName}}</view>
+        <!-- <view class='goods-des'>颜色：{{item.goodsName}}</view> -->
+        <view class='goods-num'>仅剩{{item.surplus}}件</view>
+        <view class='goods-pri'>
+            <text>￥{{item.price || '--'}}</text>
+            <!-- <text>￥358</text> -->
+        </view>
+    </view>
+    <view class='cat-r' @tap.stop='startA'>
+        <image wx:if="0" src="../../images/start_{{item.collection?'on':'off'}}.png" hover-class='icx-click-hove' class="star">
+        </image>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import AddCom from '../AddCom/index'
+export default class SearchItem extends wepy.component {
+  props = {
+      item: {
+          type: Object,
+          default: {}
+      },
+      current: {
+          type: Number,
+          default: 0
+      }
+  }
+  data = {
+      currentNum: 0
+  }
+  components = {
+      AddCom: AddCom
+  }
+  methods = {
+      startA() {
+        let _collection = this.item.collection
+        this.$emit('goods-start-event', this.current, _collection)
+      },
+      toGoodsA() {
+          this.$emit('to-goods-event', this.item.id, this.item.groupPurchase)
+      }
+  }
+  watch = {
+      item(newVal, oldVal) {
+          this.$apply()
+      }
+  }
+  onLoad() {
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+// @import './index.scss'
+@import '../../common/css/rpx.scss';
+@import '../../common/css/const.scss';
+@import '../../common/css/mixin.scss';
+.cat-item-ctner{
+    padding: rpx(30) rpx(20);
+    background: #FFF;
+    display: flex;
+    align-items: center;
+    margin-bottom: rpx(8);
+    .cat-m{
+        width: rpx(124);
+        height: rpx(124);
+        margin: 0 rpx(26) 0 rpx(16);
+        image{
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .cat-m-t {
+        flex: 1;
+        .goods-name{
+            font-size: rpx(32);
+            color: $color-word-one;
+        }
+        .goods-des{
+            font-size: rpx(20);
+            color: $color-word-three;
+            margin: rpx(16) 0 rpx(20) 0;
+        }
+        .goods-num {
+            font-size: rpx(16);
+            color: $color-word-alarm;
+            margin: rpx(26) 0 rpx(16) 0;
+            // margin-bottom: rpx(10);
+        }
+        .goods-pri{
+            font-size: rpx(20);
+            color: $color-word-one;
+            text:nth-of-type(2) {
+                color: $color-word-three;
+                font-size:  rpx(16);
+                text-decoration: line-through;
+            }
+        }
+    }
+    .cat-r{
+        text-align: left;
+        width: rpx(50);
+        height: rpx(124);
+        line-height: rpx(124);
+        .star {
+           width: rpx(27);
+           height: rpx(27);
+           vertical-align: bottom;
+        }
+    }
+}
+</style>

@@ -1,0 +1,174 @@
+<template>
+  <view class="cat-item-ctner">
+    <view class='cat-l' @tap="toggleCheckA({{item.check}})">
+        <image wx:if="{{item.check}}" src='../../images/selected.png' />
+        <image wx:else src='../../images/uncheck.png' />
+    </view>
+    <view class='cat-m'>
+        <image src='{{item.goodsIco}}' />
+    </view>
+    <view class="cat-m-t">
+        <view class='goods-name'>{{item.goodsName}}</view>
+        <view class='goods-des'>颜色：{{item.colorName}}</view>
+        <!-- <view class='goods-num'>仅剩{{item.leavingsQuantity}}件</view> -->
+        <view class='goods-pri' wx:if="{{userLevel == 0}}">
+            <text>￥{{item.price}}</text>
+        </view>
+        <view class='goods-pri' wx:else>
+          <text>￥{{item.vipPrice}}</text>
+        </view>
+    </view>
+    <view class='cat-r'>
+        <!-- <AddCom :num="item.quantity"></AddCom> -->
+        <view hover-class='icx-click-hove' @tap='deleteA' class="del-btn">删除</view>
+        <view class='_num'>
+            <view class='num-l' @tap='numReduce'>-</view>
+            <view class='num-m'>{{item.quantity}}</view>
+            <view class='num-r' @tap='numAdd'>+</view>
+        </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import AddCom from '../AddCom/index'
+export default class CatItem extends wepy.component {
+  props = {
+      item: {
+          type: Object,
+          default: {}
+      },
+      current: {
+          type: Number,
+          default: 0
+      },
+    userLevel:{
+        type:Number
+    }
+  }
+  data = {
+      currentNum: 0
+  }
+  components = {
+      AddCom: AddCom
+  }
+  methods = {
+      numAdd() {
+          this.currentNum = this.item.quantity + 1;
+        //   this.$emit('num-change-event', this.current, this.currentNum)
+          this.$emit('num-change-event', this.current, 'add')
+
+      },
+      numReduce() {
+          if (this.item.quantity < 2) return
+        //   this.currentNum = this.item.quantity - 1;
+        //   this.$emit('num-change-event', this.current, this.currentNum)
+          this.$emit('num-change-event', this.current, 'sub')
+      },
+      toggleCheckA(check) {
+          this.$emit('calt-item-check', this.current, !check)
+      },
+      deleteA() {
+        this.$emit('calt-item-del', this.current)
+      }
+  }
+  watch = {
+      item(newVal, oldVal) {
+          this.currentNum = newVal.quantity
+          this.$apply()
+      }
+  }
+  onLoad() {
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import '../../common/css/rpx.scss';
+@import '../../common/css/const.scss';
+@import '../../common/css/mixin.scss';
+.cat-item-ctner{
+    padding: rpx(30) rpx(20);
+    background: #FFF;
+    display: flex;
+    align-items: center;
+    .cat-l{
+        image{
+            width: rpx(35);
+            height: rpx(35);
+        }
+    }
+    .cat-m{
+        width: rpx(124);
+        height: rpx(124);
+        margin: 0 rpx(26) 0 rpx(16);
+        image{
+            width: 100%;
+            height: 100%;
+        }
+    }
+    .cat-m-t {
+        flex: 1;
+        .goods-name{
+            font-size: rpx(32);
+            color: $color-word-one;
+        }
+        .goods-des{
+            font-size: rpx(20);
+            color: $color-word-three;
+            margin: rpx(16) 0 rpx(20) 0;
+        }
+        .goods-num {
+            font-size: rpx(16);
+            color: $color-word-alarm;
+            margin-bottom: rpx(10);
+        }
+        .goods-pri{
+            font-size: rpx(20);
+            color: $color-word-one;
+            margin-top: rpx(26);
+            text:nth-of-type(2) {
+                color: $color-word-three;
+                font-size:  rpx(16);
+                text-decoration: line-through;
+            }
+        }
+    }
+    .cat-r{
+        text-align: right;
+        .del-btn {
+            padding: rpx(10) rpx(16);
+            border-radius: rpx(8);
+            background: $color-word-alarm;
+            display: inline-block;
+            color: #FFF;
+            margin-bottom: rpx(20);
+        }
+        ._num{
+            border-radius: rpx(2);
+            height: rpx(42);
+            min-width: rpx(168);
+            border: rpx(1) solid #F2F0F3;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            .num-l{
+                width: rpx(42);
+                position: relative;
+                @include borderRightOnePx;
+            }
+            .num-m{
+                flex: 1;
+                font-size: rpx(26);
+                color: #060606;
+            }
+            .num-r{
+                width: rpx(42);
+                position: relative;
+                @include borderLeftOnePx;
+            }
+        }
+    }
+}
+</style>

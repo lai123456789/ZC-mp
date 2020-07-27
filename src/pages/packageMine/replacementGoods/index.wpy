@@ -1,0 +1,122 @@
+<template>
+  <view class='replacement-goods-ctner'>
+     <view class='replacement-goods-outer'>
+       <view class="replacement-tips">
+         <text class="replacement-tips-word">本次售后服务将由<text>真成优选</text>为您提供</text>
+       </view>
+     </view>
+
+    <view class="I2">
+      <view class="T1-one-div">
+        <view>
+          <image src='{{orderInfo.goodsIcon}}'></image>
+          <view class="center-text">
+            <view style="font-size:24rpx;color:#333333;">{{orderInfo.goodsName}}</view>
+            <view>
+              <text style="font-size:20rpx;color:#000000;font-weight: bold">￥{{orderInfo.groupPrice}}</text>
+            </view>
+          </view>
+          <view class="center-text">
+            <view style="font-size:20rpx;color:#666666;">{{orderInfo.goodsSpecification}}</view>
+            <view>
+              <text style="font-size:20rpx;color:#666666;">￥{{orderInfo.originalPrice}}</text>
+            </view>
+          </view>
+
+        </view>
+      </view>
+    </view>
+    <view class="T1-one-div-bottom">
+      <view style="margin-top: 10rpx">申请数量</view>
+      <AddCom></AddCom>
+    </view>
+
+     <view class="replacement-action-outer">
+       <view class="replacement-action-list">
+          <view class="replacement-o" @tap='toTuiA'>
+              <text>申请原因</text>
+              <view class="picker-outer">
+                 <picker @change="bindPickerChange" value="{{reasonIndex}}" range="{{reasonArray}}">
+                  <view class="picker">
+                    当前选择：{{reasonArray[reasonIndex]}}
+                  </view>
+                </picker>
+              </view>
+              <image src='../../../images/unfold.png'></image>
+            </view>
+       </view>
+
+       <view class="replacement-des-outer">
+         <view>问题描述</view>
+         <textarea class='icx-input' placeholder-class='icx-placeholder'  bindinput="bindinput" placeholder="请输入问题，描述" />
+       </view>
+       <view class="replacement-btn-outer">
+         <button hover-class='icx-click-hover' @tap='submitA' class="icx-btn-same-sure">提交</button>
+       </view>
+     </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import { apiSalesF } from '../../../services/mine/index'
+import miniPro from '../../../utils/wepy-pro'
+import AddCom from '@/components/AddCom/index'
+
+export default class ReplacementGoods extends wepy.page {
+  config = {
+    navigationBarTitleText: '补发商品'
+  };
+  components = {
+    AddCom: AddCom
+  };
+  data = {
+    orderInfo: {
+      goodsIcon: "https://images.unsplash.com/photo-1551334787-21e6bd3ab135?w=640",
+      goodsName: "迪奥唇膏口红1",
+      goodsSpecification: "颜色：999哑光 3.5克",
+      groupNumber: '4',
+      groupPrice: '258',
+      originalPrice: '1'
+    },
+    reasonArray: ['卖家少发货品', '其他'],
+    reasonIndex: 0,
+    pageParams: {
+      orderDetailId: '',
+      afterSalesReason: '卖家少发货品',
+      afterSalesDesc: '',
+      afterSaleType: 2
+    }
+  };
+  methods = {
+    bindPickerChange: function(e) {
+      let _value = e.detail.value
+      this.reasonIndex = _value
+      this.pageParams.afterSalesReason = this.reasonArray[_value]
+    },
+    bindinput(e) {
+      this.pageParams.afterSalesDesc = e.detail.value
+    },
+    submitA() {
+      this.apiSalesFA(this.apiSalesFA.bind(this))
+    }
+  }
+  apiSalesFA(fun) {
+    apiSalesF(this.pageParams, fun).then((result) => {
+      miniPro.showToast('申请成功');
+      setTimeout(() => {
+        wepy.switchTab({ url: `/pages/mine/index` })
+        // wepy.navigateTo({ url: '/pages/packageMine/afterSales/index' });
+      }, 1000);
+    }).catch((err) => {
+      miniPro.showToast('申请售后失败');
+    });
+  }
+  onLoad(option) {
+    this.pageParams.orderDetailId = option.id
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

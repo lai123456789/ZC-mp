@@ -1,0 +1,243 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+page{
+    height: 100%;
+}
+.order-ctner{
+   position: relative;
+   background: #EEE;
+   height: 100%;
+   padding-top: rpx(62);
+   .order-top-outer {
+       position: absolute;
+       left: 0;
+       top: 0;
+       width: 100%;
+       background: #FFF;
+       height: rpx(62);
+       @include borderTopOnePx;
+       padding: rpx(0) rpx(45);
+       align-items: center;
+       display: flex;
+       justify-content: space-between;
+       .ot-same{
+           height: rpx(60);
+           line-height: rpx(60);
+           font-size: $size-one;
+           border-bottom: rpx(4) solid #FFF;
+          display: flex;
+         padding-left: rpx(20);
+         padding-right: rpx(10);
+         .A{
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           width: rpx(35);
+           height: rpx(35);
+           border-radius: 50%;
+           position: fixed;
+           top: 0;
+           margin-left: rpx(40) !important;
+           background: red;
+           color: #FFFFFF;
+           border: rpx(3) solid #FF840A;
+         }
+       }
+      view:nth-of-type(2),view:nth-of-type(3),view:nth-of-type(4),view:nth-of-type(5)
+      {
+       .A{
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         width: rpx(35);
+         height: rpx(35);
+         border-radius: 50%;
+         position: fixed;
+         top: 0;
+         margin-left: rpx(60) !important;
+         background: red;
+         color: #FFFFFF;
+         border: rpx(3) solid #FF840A;
+       }
+     }
+
+       .ot-same.active {
+           color: $color-word-alarm;
+           border-color: $color-word-alarm
+       }
+   }
+   .order-top-con {
+       height: 100%;
+       swiper {
+           height: 100%;
+       }
+       .swiper-div-same {
+           padding: rpx(12) rpx(30);
+           min-height: 100%;
+           width: 100%;
+        }
+   }
+   .order-com {
+       margin-bottom: rpx(13);
+   }
+  .modal{
+    .modal-content{
+      .content-exchang{
+        .content{
+          margin-left: rpx(70);
+          .reason {
+            width: rpx(500);
+            padding-top: rpx(40);
+            display: flex;
+            align-items: center;
+            position: relative;
+            text:nth-of-type(1) {
+              width: rpx(100);
+              font-size: rpx(24);
+              color: #333333;
+            }
+            .picker-outer {
+              flex: 1;
+              font-size: $size-unit;
+              color: #999;
+              margin-right: rpx(20);
+              picker {
+                width: 100%;
+              }
+              .picker{
+                text-align: right;
+              }
+            }
+          }
+          .desc{
+            width: rpx(500);
+            padding: rpx(40) 0;
+            display: flex;
+            align-items: center;
+            position: relative;
+            text{
+              font-size: rpx(24);
+              color: #333333;
+            }
+            input{
+              margin-left: rpx(10);
+              border: rpx(1) solid #EEE;
+              border-radius: rpx(10);
+              margin-right: rpx(20);
+              flex: 1;
+              padding-left: rpx(13);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/*物流 弹框样式如下*/
+.modal-mask-logistic {  //阴影
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #000000;
+  opacity: 0.5;
+  overflow: hidden;
+  z-index: 2147483647;
+  color: #fff;
+}
+.modal-content-logistic { //弹框
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  z-index: 2147483647;
+  overflow: scroll;
+  overflow-x: hidden;
+  background: #fff;
+  border-radius: rpx(15);
+  width: rpx(600);
+  //display: flex;
+  //align-items: center;
+  .logis-info-outer {
+    height: rpx(700);
+    padding: rpx(20) rpx(40);
+    background: #FFF;
+    border-radius: rpx(10);
+    overflow: scroll;
+    .logis-item {
+      position: relative;
+      padding-left: rpx(38);
+      padding-bottom: rpx(40);
+      @include borderLeftOnePx;
+      &.active .point-outer {
+        .point {
+          border-color: #FF8A16
+        }
+        .point-inner {
+          background: #FF7F00
+        }
+      }
+      &.active .logis-a {
+        color: #FF7F00
+      }
+      &.active .logis-b {
+        color: #FF7F00
+      }
+      &.active .logis-c {
+        color: #FF7F00
+      }
+      .point-outer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translateX(-50%);
+        width: rpx(41); // 24 + 8 * 2
+        height: rpx(41);
+        padding: rpx(8);
+        border-radius: 50%;
+        z-index: 20;
+        background: #FFF;
+      }
+      .point {
+        width: 100%;
+        height: 100%;
+        border: rpx(1) solid #A7A7A7;
+        border-radius: 50%;
+        box-sizing: border-box;
+        position: relative;
+        .point-inner {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: rpx(12);
+          height: rpx(12);
+          border-radius: 50%;
+          background: #999;
+        }
+      }
+    }
+
+    .logis-a {
+      font-size: $size-one;
+      line-height: 1.2;
+      position: relative;
+      color: $color-word-one
+    }
+    .logis-b {
+      line-height: 1.2;
+      font-size: rpx(22);
+      margin: rpx(12) 0 rpx(10);
+      color: $color-word-three;
+    }
+    .logis-c {
+      line-height: 1.2;
+      font-size: rpx(20);
+      color: #999
+    }
+  }
+}
+

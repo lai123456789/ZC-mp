@@ -1,0 +1,576 @@
+{
+	"description": "项目配置文件",
+	"packOptions": {
+		"ignore": []
+	},
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": true,
+		"minified": true,
+		"newFeature": true,
+		"coverView": true,
+		"nodeModules": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": true,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"compileHotReLoad": false,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		},
+		"bundle": false,
+		"useIsolateContext": true,
+		"useCompilerModule": true,
+		"userConfirmedUseCompilerModuleSwitch": false
+	},
+	"compileType": "miniprogram",
+	"libVersion": "2.12.0",
+	"appid": "wx7f253de3a64fb374",
+	"projectname": "ZC-mp",
+	"miniprogramRoot": "dist/",
+	"cloudfunctionTemplateRoot": "",
+	"watchOptions": {
+		"ignore": []
+	},
+	"debugOptions": {
+		"hidedInDevtools": []
+	},
+	"scripts": {},
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
+		"miniprogram": {
+			"current": -1,
+			"list": [
+				{
+					"id": -1,
+					"name": "首页",
+					"pathName": "pages/index/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "分类",
+					"pathName": "pages/classify/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "真成优选",
+					"pathName": "pages/recom/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "购物车",
+					"pathName": "pages/cart/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 4,
+					"name": "我的",
+					"pathName": "pages/mine/index",
+					"query": "scene=channel#1000",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "加入会员",
+					"pathName": "pages/packageMine/joinMembers/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "加入合伙人",
+					"pathName": "pages/packageMine/joinPartner/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "了解更多",
+					"pathName": "pages/packageMine/more/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "管理收货地址",
+					"pathName": "pages/packageMine/addressList/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "编辑收货地址",
+					"pathName": "pages/packageMine/addressEdit/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "我的收藏",
+					"pathName": "pages/packageMine/collection/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "我的足迹",
+					"pathName": "pages/packageMine/footprint/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "团购订单",
+					"pathName": "pages/packageMine/bulkOrder/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "授权页面",
+					"pathName": "pages/authorize/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "我的订单",
+					"pathName": "pages/packageMine/order/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 15,
+					"name": "我的订单详情",
+					"pathName": "pages/packageMine/OrderInfo/index",
+					"query": "orderMasterId=22",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "服务进度",
+					"pathName": "pages/packageMine/serviceProgress/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 17,
+					"name": "订单评价",
+					"pathName": "pages/packageMine/orderComment/index",
+					"query": "orderChildId=20191130132412583291",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "填写快递单号",
+					"pathName": "pages/packageMine/writeExpressNum/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "售后评价",
+					"pathName": "pages/packageMine/afterSaleOrderComment/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "服务单详情",
+					"pathName": "pages/packageMine/serviceTickeInfo/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 21,
+					"name": "商品详情",
+					"pathName": "pages/packageIndex/goodsDetail/index",
+					"query": "goodsId=20191110110638361366",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "直播预告",
+					"pathName": "pages/packageIndex/livePreview/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 23,
+					"name": "确认订单",
+					"pathName": "pages/packageMine/sureOrder/index",
+					"query": "colorId=20191104112429988360&goodsId=20191104112429981555&goodsNumber=1&prepareType=2&specificationId=20191104112429993214",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "商品搜索",
+					"pathName": "pages/packageIndex/search/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 24,
+					"name": "商品评价",
+					"pathName": "pages/packageIndex/goodsComment/index",
+					"query": "goodsId=20191110110638361366",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "关于我们",
+					"pathName": "pages/packageMine/about/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "用户协议",
+					"pathName": "pages/packageMine/userAgreement/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "招商采购政策",
+					"pathName": "pages/packageMine/policy/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "联系我们",
+					"pathName": "pages/packageMine/contact/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 22,
+					"name": "我的售后",
+					"pathName": "pages/packageMine/afterSales/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "文化衍生故事详情",
+					"pathName": "pages/packageRecom/taleDetail/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 30,
+					"name": "支付成功",
+					"pathName": "pages/packageMine/paySuccess/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "支付失败",
+					"pathName": "pages/packageMine/payFail/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "分类推荐",
+					"pathName": "pages/packageIndex/classifyRecom/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "文化衍生区",
+					"pathName": "pages/packageIndex/culture/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "会员专区",
+					"pathName": "pages/packageIndex/members/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "消息列表",
+					"pathName": "pages/packageIndex/message/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "成为高级合伙人",
+					"pathName": "pages/packageMine/joinPartnerGao/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "合伙人工作台",
+					"pathName": "pages/packageMine/joinPartnerBench/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "奖金明细",
+					"pathName": "pages/packageMine/bonusDetail/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 33,
+					"name": "用户明细",
+					"pathName": "pages/packageMine/memberDetail/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "售后",
+					"pathName": "pages/packageMine/afterSalesAction/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 39,
+					"name": "退货",
+					"pathName": "pages/packageMine/returnGoods/index",
+					"query": "orderDetailId=20191125103254518109&type=2",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "换货",
+					"pathName": "pages/packageMine/exchangeGoods/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "补发商品",
+					"pathName": "pages/packageMine/replacementGoods/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 38,
+					"name": "商城拼团",
+					"pathName": "pages/packageIndex/bulkDetail/index",
+					"query": "goodsId=20190605151323725725",
+					"scene": null
+				},
+				{
+					"id": 39,
+					"name": "查看物流",
+					"pathName": "pages/packageMine/logisticsInfo/index",
+					"query": "id=20190607104747101453",
+					"scene": null
+				},
+				{
+					"id": 40,
+					"name": "提现",
+					"pathName": "pages/packageMine/withdrawal/index",
+					"query": "money",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "提现记录",
+					"pathName": "pages/packageMine/withdrawalsRecord/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "奖励明细",
+					"pathName": "pages/packageMine/indexRecord/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "账户明细",
+					"pathName": "pages/packageMine/accountRecord/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "邀请明细",
+					"pathName": "pages/packageMine/inviteNumDetails/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "会员特权",
+					"pathName": "pages/packageMine/memberDocument/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "消息详情",
+					"pathName": "pages/packageIndex/messageDetail/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "奖金类型",
+					"pathName": "pages/packageMine/bonusType/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 44,
+					"name": "分享页面",
+					"pathName": "pages/packageMine/posters/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 45,
+					"name": "合伙人协议",
+					"pathName": "pages/packageMine/partnerDocument/index",
+					"query": "合伙人特权",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "月卡兑换页面",
+					"pathName": "pages/packageIndex/exChange/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "团购页",
+					"pathName": "pages/groupBuy/index/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 56,
+					"name": "拼团详情",
+					"pathName": "pages/groupBuy/Info/index",
+					"query": "id=20200425162345996273",
+					"scene": null
+				},
+				{
+					"id": 49,
+					"name": "一键参团",
+					"pathName": "pages/groupBuy/OnekeyDelegation/index",
+					"query": "groupId=20191107212935588852",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "确定订单",
+					"pathName": "pages/groupBuy/ConfirmOrder/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 59,
+					"name": "支付成功",
+					"pathName": "pages/groupBuy/ApplySuccess/index",
+					"query": "groupId=20200508154806273951",
+					"scene": null
+				},
+				{
+					"id": 52,
+					"name": "待成团订单详情",
+					"pathName": "pages/groupBuy/OrderInfo/index",
+					"query": "orderChildId=20191102164435241521",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "会员等级",
+					"pathName": "pages/packageIntegral/memberRank/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "积分专区",
+					"pathName": "pages/packageIntegral/integralRegion/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "新人必读",
+					"pathName": "pages/packageIntegral/newPeopleRead/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "常见问题",
+					"pathName": "pages/packageIntegral/commonProblem/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "玩转成氏商城",
+					"pathName": "pages/packageIntegral/playChengMall/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "积分签到",
+					"pathName": "pages/packageIntegral/memberIntegralSignIn/index",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "更新模拟模式",
+					"pathName": "pages/index/index",
+					"query": "",
+					"scene": null
+				}
+			]
+		}
+	}
+}

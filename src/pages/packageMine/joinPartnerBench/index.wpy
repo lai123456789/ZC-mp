@@ -1,0 +1,190 @@
+<template>
+  <view class='bench-ctner'>
+      <view class="bench-title">
+        <view class="bench-name">
+          {{userType}}
+        </view>
+        <view class="bench-can-get">
+          <text>可提现(元）</text>
+          <text>{{ partnerData.balance }}</text>
+          <text @tap='toWithdrawalA' hover-class='icx-click-hover'>提现</text>
+        </view>
+        <image class="bench-bg" src='../../../images/rectangular.png'></image>
+      </view>
+      <view class="bench-money">
+          <view class="bench-money-same">
+            <view>￥{{ partnerData.totalAmount }}</view>
+            <view>总奖金</view>
+          </view>
+          <view class="bench-money-same">
+            <view>￥{{partnerData.withdrawAmount}}</view>
+            <view>已提现</view>
+          </view>
+          <view class="bench-money-same">
+            <view>￥{{partnerData.computusAmount}}</view>
+            <view>结算中</view>
+          </view>
+      </view>
+      <view class="bench-other">
+        <view class="bench-other-con">
+          <view class="bench-other-left" @tap="toMoneyDetail">
+              <image src='../../../images/bonus_icon.png'></image>
+              <view>奖金明细</view>
+          </view>
+          <view class="bench-other-right" @tap="toMemberDetail">
+              <image src='../../../images/members_icon.png'></image>
+              <view>用户明细</view>
+          </view>
+        </view>
+      </view>
+      <view class="bench-poster">
+        <view class="poster-title">我的推广海报</view>
+        <view class="poster-img">
+          <view class="poster-tip">
+            <text>邀请码</text>
+            <text>{{partnerData.userId}}</text>
+            <text>成氏商城，诚实的商城</text>
+          </view>
+          <image class="poster-img-bg" src='../../../images/card_by.png'></image>
+          <view class="poster-info-wrap">
+            <view class="img-w">
+              <image class="img-w_a"  @tap='choiceImgA' src="{{headImgParams.imgUrl?headImgParams.imgUrl:'../../../images/logo_b.png'}}"></image>
+              <image class="img-w_b" src='../../../images/m_add_icon.png'></image>
+            </view>
+            <view class="poster-name">
+              <view>{{partnerData.realName}}</view>
+              <view>我是{{userType}}</view>
+            </view>
+            <view class="poster-btn" @tap='toPartnerDoc'>
+                <view>我的身份权益</view>
+                <image src='../../../images/qy_btn_icon.png'></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="bench-btn">
+        <button @tap='toPosterA' class="icx-btn-same-sure">生成海报</button>
+      </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import VerificationCode from '../../../components/verificationCode/index'
+import {
+  apiPartnerDataF, // 合伙人工作台 => 获取合伙人工作台数据
+  apiPartnerWithdrawalApplyF, // 合伙人提现
+  apiUploadPartnerHeadF
+} from '../../../services/mine/index'
+import { apiUploadPartnerHead } from '../../../services/mine/api'
+import miniPro from '../../../utils/wepy-pro'
+
+export default class JoinPartnerBench extends wepy.page {
+  config = {
+    navigationBarTitleText: '合伙人工作台'
+  };
+  components = {
+    VerificationCode: VerificationCode
+  };
+  events = {
+  }
+  data = {
+    partnerData: {},
+    userType: '',
+    headImgParams: {
+      filePath: '',
+      imgUrl: ''
+    }
+  };
+
+  apiPartnerDataFA(fun) {
+    apiPartnerDataF(fun).then((result) => {
+      /**
+       *  balance (number, optional): 可提现金额 ,
+          computusAmount (number, optional): 计算中金额 ,
+          totalAmount (number, optional): 总奖金 ,
+          userId (integer, optional): 用户ID，同时也是邀请码 ,
+          userType (integer, optional): 用户类型（1：普通合伙人 2：高级合伙人 3：代购合伙人） ,
+          withdrawAmount (number, optional): 已提现金额
+       */
+      this.partnerData = result
+      this.headImgParams.imgUrl = result.headImage
+      let userType = ''
+      switch (result.userType) {
+        case 1:
+          userType = '分享者'
+          break;
+        case 2:
+          userType = '合伙人'
+          break;
+        case 3:
+          userType = '真成掮客'
+          break;
+        default:
+          userType = '---'
+          break;
+      }
+      this.userType = userType
+      this.$apply()
+    }).catch(() => { });
+  }
+
+  methods = {
+    readA() {
+      this.pageParams.isReadAgreement = !this.pageParams.isReadAgreement
+    },
+    toMoneyDetail() {
+      wepy.navigateTo({ url: '/pages/packageMine/bonusType/index' })
+    },
+    toMemberDetail() {
+      wepy.navigateTo({ url: '/pages/packageMine/memberDetail/index' })
+    },
+    toWithdrawalA() {
+      let _totalAmount = this.partnerData.totalAmount
+      if (_totalAmount == 0) {
+        miniPro.showToast('暂无提现额度')
+        return
+      }
+      wepy.navigateTo({ url: `/pages/packageMine/withdrawal/index?money=${_totalAmount}` })
+    },
+    toPosterA() {
+      wepy.navigateTo({ url: `/pages/packageMine/posters/index` })
+    },
+    toPartnerDoc() {
+      wepy.navigateTo({ url: '/pages/packageMine/partnerDocument/index' });
+    },
+    choiceImgA() {
+      let _this = this
+      const Access_Token = miniPro.getAccessToken()
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album', 'camera'],
+        success (res) {
+          // tempFilePath可以作为img标签的src属性显示图片
+          const tempFilePaths = res.tempFilePaths[0]
+          _this.headImgParams.filePath = tempFilePaths
+          _this.$apply()
+          setTimeout(() => {
+            _this.apiUploadPartnerHeadFA(_this.apiUploadPartnerHeadFA.bind(this))
+          }, 100);
+        }
+      })
+    }
+  }
+  apiUploadPartnerHeadFA(fun) {
+    apiUploadPartnerHeadF(this.headImgParams.filePath,fun).then((result) => {
+      this.headImgParams.imgUrl = result.headImage
+      this.$apply()
+    }).catch((err) => {
+
+    });
+  }
+  onLoad() {
+    this.apiPartnerDataFA(this.apiPartnerDataFA.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

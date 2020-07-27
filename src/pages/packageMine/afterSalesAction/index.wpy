@@ -1,0 +1,118 @@
+<template>
+  <view class='after-action-ctner'>
+
+
+     <view class='after-goods-outer'>
+       <view class="after-tips">
+         <text class="after-tips-word">本次售后服务将由<text>真成优选</text>为您提供</text>
+       </view>
+     </view>
+
+    <view class="I2">
+      <view class="T1-one-div">
+        <view>
+          <image src='{{orderInfo.goodsIco}}'></image>
+          <view class="center-text">
+            <view class="goodsName">{{orderInfo.goodsName}}</view>
+            <view>
+              <text style="font-size:20rpx;color:#000000;font-weight: bold">￥{{orderInfo.goodsPrice}}</text>
+            </view>
+          </view>
+          <view class="center-text">
+            <view style="font-size:20rpx;color:#666666;">
+              <text wx:if="{{orderInfo.colorName}}">颜色：{{orderInfo.colorName}} </text>
+              <text wx:if="{{orderInfo.specification}}" style="margin-left: 10rpx">{{orderInfo.specification}}</text>
+            </view>
+            <view>
+              <text style="font-size:20rpx;color:#666666;">X {{orderInfo.buyNumber}}</text>
+            </view>
+          </view>
+
+        </view>
+      </view>
+    </view>
+     <view class="after-action-outer">
+       <view class="after-action-list">
+         <view @tap='returnGoods'><image src='../../../images/tui.png'></image><text>退货退款</text><text>退回商品货款/并退回收到的商品</text><image src='../../../images/unfold.png'></image></view>
+         <view @tap='changeGoods'><image src='../../../images/chang.png'></image><text>换货</text><text>更换收到的商品</text><image src='../../../images/unfold.png'></image></view>
+         <view @tap='returnMoneyGoods'><image src='../../../images/tuimoney.png'></image><text>仅退款</text><text>退回商品货款/无需退回商品</text><image src='../../../images/unfold.png'></image></view>
+         <view @tap='replacementGoods'><image src='../../../images/bu.png'></image><text>补发商品</text><text>卖家少发商品</text><image src='../../../images/unfold.png'></image></view>
+
+       </view>
+
+<!--       <view class="after-btn-outer">  -->
+<!--         <view> <image src='../../../images/service_light.png'></image> <text>联系客户</text> </view>-->
+<!--         <view> <image src='../../../images/phone.png'></image> <text>拨打电话</text> </view>-->
+<!--       </view>-->
+
+
+     </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import NoTip from '@/components/OrderNoDataTip/index'
+import AfterSale from '@/components/AfterSaleCom/index'
+import UrlNavigate from '../../../utils/wepyNavigate';
+import {apiAfterSaleInfoF} from  '../../../services/mine'
+export default class AfterSalesAction extends wepy.page {
+  config = {
+    // navigationBarBackgroundColor: '#09103b',
+    // navigationBarTextStyle: '#FFF',
+    navigationBarTitleText: '售后'
+  };
+  components = {
+    NoTip: NoTip,
+    AfterSale: AfterSale,
+  };
+  data = {
+    orderDetailId: '',
+    afterSalesId:"",
+    OrderChildId:"",
+    orderId: '',
+    orderInfo: {
+      goodsIco: "",
+      colorName:"",
+      goodsName: "",
+      specification: "",
+      buyNumber: '',
+      goodsPrice: ''
+    }
+  };
+
+  events = {
+    // 'addComEvent': (p1) => { this.buyNum = p1; this.$apply() }
+  }
+  methods = {
+    returnGoods() {
+      UrlNavigate('/pages/packageMine/returnGoods/index',{orderDetailId:this.orderDetailId,afterSalesId:this.afterSalesId,OrderChildId:this.OrderChildId,type:2})
+    },
+    changeGoods(){
+      UrlNavigate('/pages/packageMine/returnGoods/index',{orderDetailId:this.orderDetailId,afterSalesId:this.afterSalesId,OrderChildId:this.OrderChildId,type:3})
+    },
+    returnMoneyGoods(){
+      UrlNavigate('/pages/packageMine/returnGoods/index',{orderDetailId:this.orderDetailId,afterSalesId:this.afterSalesId,OrderChildId:this.OrderChildId,type:1})
+    },
+    replacementGoods(){
+      UrlNavigate('/pages/packageMine/returnGoods/index',{orderDetailId:this.orderDetailId,afterSalesId:this.afterSalesId,OrderChildId:this.OrderChildId,type:4})
+    }
+  };
+  apiAfterOrderInfo(fun) {
+    apiAfterSaleInfoF(this.orderDetailId, fun).then((result) => {
+      this.orderInfo = result
+      this.OrderChildId = result.OrderChildId
+      console.log(result)
+      this.$apply()
+    }).catch((err) => {});
+  }
+  onLoad(option) {
+    this.orderDetailId = option.orderDetailId
+    this.apiAfterOrderInfo(this.apiAfterOrderInfo.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>
+

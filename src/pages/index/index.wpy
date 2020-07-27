@@ -1,0 +1,536 @@
+<template>
+  <view class="index-ctner container-same">
+    <wxs src="../../utils/filter.wxs" module="tools"></wxs>
+    <view
+      style="height: 100%;"
+    >
+      <view class="ix-add-text"  wx:if="{{isShow}}">
+        <view class="animation" @tap="show">
+          <text>点击</text><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/topdianWhite.png"></image>
+          <text>添加到我的小程序，快捷又方便 <text> x </text></text>
+        </view>
+      </view>
+    <view class="ix-input-wrap">
+        <view class="input-search">
+          <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/nav_button_search_default.png' />
+        </view>
+        <input @tap.stop='onClick' maxlength='200' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入商品" />
+        <view class="input-msg" @tap.stop='onClick'>搜索</view>
+    </view>
+    <view class="ix-banner-wrap">
+      <swiper
+        indicator-dots="{{indicatorDots}}"
+        autoplay="{{autoplay}}"
+        interval="{{interval}}"
+        duration="{{duration}}"
+        circular = 'true'
+        indicator-color="{{indicatorColor}}"
+        indicator-active-color="{{indicatorActiveColor}}"
+        @change="swiperChange"
+      >
+        <block wx:for="{{homeBanners}}" wx:key='index' wx:for-item="item">
+          <swiper-item @tap='swiperA({{item}})'>
+            <image src="{{item.bannerPath}}" class="slide-image" width="355" height="150" />
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="dots"> <!--  修改自定义轮播圆点样式 -->
+        <block wx:for="{{homeBanners}}" wx:key="index">
+          <view class="dot {{index == swiperCurrent ? 'active' : ''}}"></view>
+        </block>
+      </view>
+    </view>
+    <view class="ix-goods-wrap">
+      <view class="picture-text-index">
+        <block  wx:for="{{homeSectionsTop}}">
+          <view class="every" @tap="toTopList({{item}})">
+            <view class="every-center">
+              <view><image src="{{item.bannerPath}}"></image></view>
+            </view>
+            <view  class="every-text">{{item.mainTitle}}</view>
+          </view>
+        </block>
+      </view>
+      <view class="picture-text-index">
+        <block  wx:for="{{homeSectionsBottom}}">
+          <view class="every"  @tap="toBottomList({{item}})">
+            <view class="every-center">
+              <view><image src="{{item.bannerPath}}"></image></view>
+            </view>
+            <view  class="every-text">{{item.mainTitle}}</view>
+          </view>
+        </block>
+      </view>
+    </view>
+      <view class="line-color"></view>
+      <view class="ix-goods-time">
+        <view class="mid-content">
+          <view class="mid-index">
+            <view class="mid">
+              <view class="mid-top" @tap="goGroupBuy()">
+                <view>
+                  <text>团购秒杀</text>
+                  <text>查看更多</text>
+                </view>
+                <view>限量爆品低价抢购</view>
+              </view>
+              <view class="mid-bottom">
+                <view wx:for="{{groupPurchases}}">
+                  <image src="{{item.goodsIcon}}" @tap="groupGood({{item}})"></image>
+                </view>
+              </view>
+            </view>
+            <view class="mid">
+              <view class="mid-top">
+                <view>
+                  <text>好物推荐</text>
+                  <image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/goods1.png"></image>
+                </view>
+                <view>每日都有好物上新</view>
+              </view>
+              <view class="mid-bottom">
+                <block wx:for="{{greatLikeGoods}}">
+                  <image src="{{item.goodsIco}}" @tap="greatLikeGood({{item}})"></image>
+                </block>
+              </view>
+            </view>
+          </view>
+
+
+        </view>
+        <view class="advertisement" @tap="goLink({{advertisements[0]}})">
+          <image src="{{advertisements[0].bannerPath}}"></image>
+        </view>
+      </view>
+      <view class="line-color"></view>
+      <view class="cs-scroll-outer"> <!-- 水平导航栏 -->
+        <view class='list-title'> <!-- 标题title -->
+          <scroll-view class="title-text" scroll-x="true">
+            <view class="nav" wx:for="{{pageList}}"
+                  @tap='classifyA({{item}}, {{index}})' wx:key="{{index}}">
+              <view class="nav-text">
+                <view class="nav-1 {{currenIndex == index ? 'item-class' : ''}}">
+                  <view>{{item.mainTitle}}</view>
+                  <view>{{item.subTitle}}</view>
+                </view>
+<!--                <text style="margin:0 18rpx">|</text>-->
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+        <view class='cat-container' wx:if="{{show}}"> <!--猜你喜欢列表先展示内容 -->
+          <view @tap="toLikeGoodsDetail({{item}})" class="cat-like-item" wx:for="{{pageLikeList}}" wx:key="index">
+            <image src="{{item.goodsIco}}"></image>
+            <view class="cart-l-des">{{item.goodsShortName}}</view>
+            <view class="cart-l-description">{{item.goodsDescription}}</view>
+            <view class="cart-l-price">￥{{item.price}}</view>
+          </view>
+        </view>
+        <view class="cat-container" wx:else> <!--其他title对应内容content -->
+          <scroll-view wx:if="{{goodsPageList.length > 0}}">
+            <view @tap="toGoodsLink({{item}})" wx:for="{{goodsPageList}}" class="cat-like-item" wx:key="indexVal">
+              <image src="{{item.goodsIco}}"></image>
+              <view class="cart-l-des">{{item.goodsShortName}}</view>
+              <view class="cart-l-description">{{item.goodsDescription}}</view>
+              <view class="cart-l-price">￥{{item.price}}</view>
+            </view>
+          </scroll-view>
+          <view class="order-no-data-ctner" wx:else>
+            <view>
+              <image src='	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/order_none_icon.png'></image>
+              <view class="t-a">暂无相关商品</view>
+            </view>
+          </view>
+        </view>
+      </view>
+  </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+
+import '../../common/js/authProcess.js';
+import {
+  apiGetHomeDataF, apiGoodsLikePageF, apiGoodsListF, apiGroupPermissionF
+} from '../../services/index';
+import {
+  INDICATOR_COLOR,
+  INDICATOR_ACTIVE_COLOR
+} from '@/common/js/config';
+import miniPro from '@/utils/wepy-pro.js';
+import { apiCategoryByParentF } from '../../services/classify';
+import { apiInfoF } from '../../services/cart';
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '真成优选',
+    enablePullDownRefresh:true
+  };
+  components = {
+  };
+  mixins = [];
+  data = {
+    userId:"",
+    sk:"",
+    shareUserId:"",
+    shareKey:"",
+    qrScene:"",
+    show:true,
+    currenIndex: 0,
+    goodsPageList:[],
+    homeSectionsTop:[],
+    homeSectionsBottom:[],
+    groupPurchases:[],
+    greatLikeGoods:[],
+    subParentId: '',
+    parentId:0,
+    pageList:[],
+    pageLikeList: [],
+    pageParamsLike: {
+      page: 0,
+      limit: 20,
+      goodsLabels:"",
+      categoryId: '',
+      keyword: '',
+      hasMore:false
+    },
+    imgUrls: [
+      'https://images.unsplash.com/photo-1551334787-21e6bd3ab135?w=640',
+      'https://images.unsplash.com/photo-1551214012-84f95e060dee?w=640',
+      'https://images.unsplash.com/photo-1551446591-142875a901a1?w=640'
+    ],
+    isShow:true,
+    indicatorDots: false,
+    autoplay: true,
+    interval: 5000,
+    duration: 1000,
+    indicatorColor: INDICATOR_COLOR,
+    indicatorActiveColor: INDICATOR_ACTIVE_COLOR,
+    swiperCurrent: 0,
+    homeBanners: [], // 首页banner
+    advertisements:[],//弹窗广告内容
+    currentId:""
+  };
+
+  computed = {};
+
+  methods = {
+    //更新star
+    classifyA(item, index) {
+      if (this.currenIndex == index) return
+      this.show = false
+      this.currenIndex = index;
+      if(index == 0){
+        this.show = true
+      }
+      console.log(index)
+      console.log(item)
+      this.subParentId = item.id
+      if(item.linkType == 4){ //标签
+        this.pageParamsLike.goodsLabels = item.link
+      }else{
+        this.pageParamsLike.goodsLabels = ""
+      }
+      if(item.linkType == 5){ //商品分类
+        this.pageParamsLike.categoryId = item.link
+      }else{
+        this.pageParamsLike.categoryId = ""
+      }
+      this.getGoodsListA(this.getGoodsListA.bind(this))
+    },
+    toSearchA(categoryId) {
+      wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${categoryId}` });
+    },
+    groupGood(item){
+      this.currentId = item.id;
+      this.$apply()
+      this.apiGroupPermission(this.apiGroupPermission.bind(this));
+    },
+    greatLikeGood(item){
+      miniPro.toGoodsDetail(item.id)
+    },
+    toLikeGoodsDetail(item){ //推荐栏列下所有商品
+      miniPro.toGoodsDetail(item.id)
+    },
+    toGoodsLink(item){ //推荐栏 其他列所有商品
+      miniPro.toGoodsDetail(item.id)
+    },
+    toTopList(item){
+      let linkType = item.linkType
+      switch (linkType) {
+        case 1: //商品详情页
+          miniPro.toGoodsDetail(item.link)
+          break;
+        case 2: //外部链接h5页
+          miniPro.toWebView(item.link)
+          break;
+        case 3: //小程序页面地址
+          wepy.navigateTo({ url: item.link });
+          break;
+        case 4: //商品标签
+          wepy.navigateTo({ url: `/pages/packageIndex/search/index?goodsLabels=${item.link}` });
+          break;
+        case 5: //商品分类
+          wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${item.link}` });
+          break;
+      }
+    },
+    toBottomList(item){
+      let linkType = item.linkType
+      switch (linkType) {
+        case 1: //商品详情页
+          miniPro.toGoodsDetail(item.link)
+          break;
+        case 2: //外部链接h5页
+          miniPro.toWebView(item.link)
+          break;
+        case 3: //小程序页面地址
+          wepy.navigateTo({ url: item.link });
+          break;
+        case 4: //商品标签
+          wepy.navigateTo({ url: `/pages/packageIndex/search/index?goodsLabels=${item.link}` });
+          break;
+        case 5: //商品分类
+          wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${item.link}` });
+          break;
+      }
+    },
+    goGroupBuy() {
+      wepy.navigateTo({ url: `/pages/groupBuy/index/index` });
+    },
+    //更新end
+    goLink(item){ //跳转广告对应页面
+      let { link, linkType } = item
+      // linkType: 1-商品详情；2-外部链接; 3-小程序页面链接地址 4-商品标签  5-商品分类
+      if (link) {
+        switch (linkType) {
+          case 1: //商品详情页
+            miniPro.toGoodsDetail(item.link)
+            break;
+          case 2: //外部链接h5页
+            miniPro.toWebView(item.link)
+            break;
+          case 3: //小程序页面地址
+            wepy.navigateTo({ url: item.link });
+            break;
+          case 4: //商品标签
+            wepy.navigateTo({ url: `/pages/packageIndex/search/index?goodsLabels=${item.link}` });
+            break;
+          case 5: //商品分类
+            wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${item.link}` });
+            break;
+        }
+      }
+    },
+    swiperA(item) {
+      // linkType: 1-商品详情；2-H5; 3-小程序页面链接地址 4-商品标签  5-商品分类
+      let { link, linkType } = item
+      if (link) {
+        switch (linkType) {
+          case 1: //商品详情页
+            miniPro.toGoodsDetail(item.link)
+            break;
+          case 2: //外部链接h5页
+            miniPro.toWebView(item.link)
+            break;
+          case 3: //小程序页面地址
+            wepy.navigateTo({ url: item.link });
+            break;
+          case 4: //商品标签
+            wepy.navigateTo({ url: `/pages/packageIndex/search/index?goodsLabels=${item.link}` });
+            break;
+          case 5: //商品分类
+            wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${item.link}` });
+            break;
+        }
+
+      }
+    },
+    toMsgA() {
+      wepy.navigateTo({ url: '/pages/packageIndex/message/index' });
+    },
+    onClick(e) {
+      wepy.navigateTo({ url: '/pages/packageIndex/search/index' });
+    },
+    toCategoryDetailA(e) {
+      let _categoryId = e.currentTarget.dataset.category
+      wepy.navigateTo({ url: `/pages/packageIndex/search/index?categoryId=${_categoryId}` })
+    },
+    toGoodsDetailA(e) {
+      let _goodsId = e.currentTarget.dataset.goodsid
+      let _group = e.currentTarget.dataset.group
+      miniPro.toGoodsDetail(_goodsId, _group)
+    },
+    toClassifyRecom() {
+      wepy.navigateTo({ url: `/pages/packageIndex/classifyRecom/index` });
+    },
+    toCultureA() {
+      wepy.switchTab({ url: '/pages/recom/index' });
+    },
+    toMembersA() {
+      wepy.navigateTo({ url: `/pages/packageIndex/members/index` });
+    },
+    show(){
+      console.log("触发了点击事件哦")
+      this.isShow = false
+      this.$apply()
+    }
+  }
+  //新修改或添加的接口 star
+  apiGroupPermission(fun){
+    let param = {
+      id: this.currentId
+    };
+    apiGroupPermissionF(param,fun).then((result)=>{
+      wepy.navigateTo({ url: `/pages/groupBuy/Info/index?indexId=` + this.currentId })
+    }).catch(()=>{
+
+    });
+  };
+  apiCategoryByParentFA(fun) {  //分类列表
+    let t = this
+    apiCategoryByParentF(this.parentId, fun).then(reslut => {
+      let currenIndex = this.currenIndex
+      t.subParentId = reslut[currenIndex].id
+      console.log(t.subParentId)  //-1
+      t.$apply()
+
+      this.apiGoodsLikePageFA(this.apiGoodsLikePageFA.bind(this)) //猜您喜欢列表
+    }).catch(() => { })
+  }
+  getGoodsListA(fun) { //新修改对应内容
+    let t = this
+    apiGoodsListF({
+      page: this.pageParamsLike.page,
+      limit: this.pageParamsLike.limit,
+      keyword: this.pageParamsLike.keyword,
+      categoryId: this.pageParamsLike.categoryId,
+      goodsLabels: this.pageParamsLike.goodsLabels
+    }, fun).then(result => {
+      t.goodsPageList = []
+      let { rows, last, pageNumber } = result
+      t.pageParamsLike.page = pageNumber
+      t.pageParamsLike.hasMore = !last
+      t.goodsPageList = this.goodsPageList.concat(rows)
+      console.log(this.goodsPageList)
+      t.$apply()
+    }).catch(err => {
+    });
+  }
+
+  apiGoodsLikePageFA(fun) { //猜您喜欢接口
+    apiGoodsLikePageF({
+      page: this.pageParamsLike.page,
+      limit: this.pageParamsLike.limit
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows } = result
+      this.pageLikeList = rows
+      this.$apply();
+    }).catch(() => { });
+  }
+  //新修改或添加的接口 end
+  swiperChange(e) {
+    let current = e.detail.current;
+    this.swiperCurrent = current
+    this.$apply()
+  }
+  apiGetHomeDataFA(fun) {
+    apiGetHomeDataF(fun).then(msg => {
+      let { homeBanners,homeSections,adSlots,groupPurchases,likeGoods,categorySections } = msg
+      this.homeSectionsTop = homeSections.slice(0,5)
+      this.homeSectionsBottom = homeSections.splice(5)
+      this.advertisements = adSlots
+      this.homeBanners = homeBanners
+      this.groupPurchases = groupPurchases
+      this.greatLikeGoods =  likeGoods
+      let likeParam = {id:-1,parentId:0,mainTitle:"推荐",subTitle:"猜您喜欢"}
+      categorySections.unshift(likeParam)
+      console.log(categorySections)
+      this.pageList = categorySections
+      this.$apply()
+    }).catch(() => { })
+  }
+  toActivity(item){
+    let param = "";
+    if(item){
+      param = "?activityId=" + item.id + "&type=" + item.type
+    }
+    wepy.navigateTo({ url: `/pages/groupBuy/index/index` + param });
+  };
+  apiGetInfoFA(fun) { //获取用户信息
+    let _self = this
+    apiInfoF(fun).then(msg => {
+      _self.userId = msg.userId
+      _self.sk = Math.random().toString(21).substr(4);
+      _self.$apply();
+    }).catch(() => { });
+  }
+  async onLoad(option) {
+    this.apiGetHomeDataFA(this.apiGetHomeDataFA.bind(this))
+    this.apiCategoryByParentFA(this.apiCategoryByParentFA.bind(this))  //分类列表
+    this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //获取用户个人信息 userid  userleavel
+    if (option.si){  //分享者id
+      this.shareUserId = option.si || ""
+      wepy.$instance.globalData.qrSi = option.si || ''
+    }
+    if(option.sk){
+      this.shareKey = option.sk || ""
+      wepy.$instance.globalData.qrSk = option.sk || ''
+    }
+    let scene = option.scene
+    if (scene) {
+      this.qrScene = scene
+      wepy.$instance.globalData.qrScene = scene || ''
+    }
+    if(option.custom_params){ //直播间进来的
+      let roomParam = decodeURIComponent(option.custom_params) //直播间进来获取的自定义custom_params参数 值有 si sk room_id
+      let par = JSON.parse(decodeURIComponent(roomParam)) //解码后的参数转为对象格式 {si: 19267, sk: "7kb23hkcef7"}
+      this.shareUserId = par.si || ""
+      this.shareKey = par.sk || ""
+      this.room_id = wepy.$instance.globalData.room_id || ""
+      wepy.$instance.globalData.qrSi = par.si
+      wepy.$instance.globalData.qrSk = par.sk
+    }
+  }
+  onShow() {
+
+  }
+  onShareTimeline(res){ //分享到朋友圈
+    let qrScene = this.qrScene || ''
+    let _userId = this.userId
+    let _sk = this.sk //10长度随机码 字母数字组合
+    let params = `si=${_userId}&sk=${_sk}&qrScene=${qrScene}`
+    return {
+      title: '真成优选',
+      query: params,
+      imageUrl: ''
+    };
+  }
+  onShareAppMessage(res) {
+    if (res.from === 'button') {
+      // 来自页面lugin-privat内转发按钮
+    }
+    let qrScene = this.qrScene || ''
+    let _userId = this.userId
+    let _sk = this.sk //10长度随机码 字母数字组合
+    let url = `/pages/index/index?si=${_userId}&sk=${_sk}&qrScene=${qrScene}`;
+    return {
+      title: '真成优选',
+      path: url,
+      imageUrl: ''
+    };
+  }
+  onPullDownRefresh(){
+    this.apiGetHomeDataFA(this.apiGetHomeDataFA.bind(this))
+    this.apiCategoryByParentFA(this.apiCategoryByParentFA.bind(this))  //分类列表
+    setTimeout(() => {
+      wx.stopPullDownRefresh()
+      miniPro.showToast("刷新成功")
+    },1500)
+  };
+}
+</script>
+<style lang="scss">
+@import './index.scss';
+
+</style>

@@ -1,0 +1,191 @@
+<template>
+  <view class='partnerGao-ctner'>
+      <view class="gao-con-outer">
+        <view class="gao-title">
+          <image src='../../../images/friend.png'></image>
+          <text>合伙人类型：</text>
+          <text>{{pageParams.typeTitle}}</text>
+        </view>
+        <view class="gao-same">
+          <text>姓  名：</text><input @input='nameBindInput' maxlength='200' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入姓名" />
+        </view>
+        <view class="gao-same">
+         <text>电  话：</text> <input @input='telBindInput' type='number' maxlength='11' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入电话号码" />
+        </view>
+        <view class="gao-same" wx:if="{{pageParams.type == 2}}">
+         <text>推荐人ID：</text> <input @input='inviteIdBindInput' maxlength='20' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入推荐人ID" />
+        </view>
+        <view class="gao-same">
+         <text>验证码：</text>
+         <input @input='codeBindInput' type='number' maxlength='6' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入验证码" />
+         <view class="code-outer">
+           <VerificationCode :phone='pageParams'></VerificationCode>
+         </view>
+        </view>
+
+        <view class="gao-same textarea" wx:if="{{pageParams.type == 3}}">
+          <text>地址：</text> <textarea @input='addressBindInput' class='icx-input' placeholder-class='icx-placeholder'  bindblur="bindTextAreaBlur" placeholder="请输入详细地址" />
+          <!-- <input @tap='bindfocusInput' maxlength='200' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入姓名" /> -->
+        </view>
+
+      </view>
+      <view class="gao-upload-outer">
+        <!-- <view class="upload-btn1" @tap="uploadA">
+          <image src='../../../images/upload_img.png'></image>
+          <text>点击上传推广背景头像</text>
+        </view> -->
+        <view class="upload-btn2">
+            <view @tap='readA'>
+              <image wx:if="{{pageParams.isReadAgreement}}" src='../../../images/btn_selected.png'></image>
+              <image wx:else src='../../../images/btn_uncheck.png'></image>
+            </view>
+           <text @tap='toPartenerDocumentA'>《勾选即代表同意合伙人协议》</text>
+        </view>
+      </view>
+      <view class="gao-btn-outer">
+        <button @tap='toSaveA' hover-class='icx-click-hover' class="icx-btn-same-sure">提交</button>
+      </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import VerificationCode from '../../../components/verificationCode/index'
+import {
+  apiPartnerPhoneCodeF, // 发送验证码
+  apiPartnerSaveF, // 提交合伙人信息
+  apiPartnerPayF // 高级合伙人付款
+} from '../../../services/mine/index'
+import miniPro from '../../../utils/wepy-pro'
+export default class JoinPartnerGao extends wepy.page {
+  config = {
+    navigationBarTitleText: '成为合伙人'
+  };
+  components = {
+    VerificationCode: VerificationCode
+  };
+  events = {
+    clickSendEvent(p) {
+      this.apiPartnerPhoneCodeFA(this.apiPartnerPhoneCodeFA.bind(this))
+    }
+  }
+  data = {
+    pageParams: {
+      phoneNum: '',
+      type: '', // 类型（1：普通合伙人 2：高级合伙人 3：代购合伙人)
+      name: '',
+      address: '',
+      inviteId: '',
+      sessionId: '',
+      code: '',
+      isReadAgreement: true,
+      typeTitle: ''
+    },
+    typeName: {
+      '1': '分享者',
+      '2': '合伙人',
+      '3': '真成掮客'
+    }
+  };
+
+  apiPartnerPhoneCodeFA(fun) {
+    apiPartnerPhoneCodeF({
+      type: this.pageParams.type,
+      phone: this.pageParams.phoneNum
+    }, fun).then((result) => {
+      // e8ac4f3089044b9c89768e5de2a9959e
+      this.pageParams.sessionId = result
+      this.$apply()
+      miniPro.showToast("短信已发送")
+    }).catch(() => {
+      miniPro.showToast("短信发送失败")
+    });
+  }
+
+  apiPartnerSaveFA(fun) {
+    apiPartnerSaveF({
+      name: this.pageParams.name,
+      type: this.pageParams.type,
+      address: this.pageParams.address,
+      inviteId: this.pageParams.inviteId,
+      phone: this.pageParams.phoneNum,
+      sessionId: this.pageParams.sessionId || 'e8ac4f3089044b9c89768e5de2a9959e',
+      code: this.pageParams.code
+    }, fun).then((result) => {
+      miniPro.showAlert({
+        title: '提示',
+        content: '您的信息已经提交成功，我们会尽快审核',
+        confirmText: '确认',
+        success: function(flag) {
+          wepy.switchTab({ url: `/pages/mine/index` })
+        }
+      })
+    }).catch(() => { });
+  }
+
+  apiPartnerPayFA(fun) {
+    apiPartnerPayF(fun).then(msg => {
+      miniPro.requestPayment(msg).then((result) => {
+        miniPro.showToast('支付成功')
+        setTimeout(() => {
+          wepy.redirectTo({ url: `/pages/packageMine/posters/index` })
+        }, 1500)
+      }).catch(() => {
+        miniPro.showToast('调用失败')
+        setTimeout(() => {
+          wepy.navigateTo({ url: `/pages/packageMine/payFail/index` })
+        }, 1500)
+      });
+    }).catch(() => { })
+  }
+
+  methods = {
+    nameBindInput(e) {
+      this.pageParams.name = e.detail.value
+    },
+    codeBindInput(e) {
+      this.pageParams.code = e.detail.value
+    },
+    addressBindInput(e) {
+      this.pageParams.address = e.detail.value
+    },
+    telBindInput(e) {
+      this.pageParams.phoneNum = e.detail.value
+    },
+    inviteIdBindInput(e) {
+      this.pageParams.inviteId = e.detail.value
+    },
+    readA() {
+      this.pageParams.isReadAgreement = !this.pageParams.isReadAgreement
+    },
+    toPartenerDocumentA() {
+      wepy.navigateTo({ url: '/pages/packageMine/partnerDocument/index' });
+    },
+    uploadA() {
+      wepy.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album', 'camera'],
+        success (res) {
+          // tempFilePath可以作为img标签的src属性显示图片
+          const tempFilePaths = res.tempFilePaths
+        }
+      })
+    },
+    toSaveA() {
+      if (!this.pageParams.isReadAgreement) {
+        miniPro.showToast('请先阅读用户协议')
+        return
+      }
+      this.apiPartnerSaveFA(this.apiPartnerSaveFA.bind(this))
+    }
+  }
+  onLoad(option) {
+    this.pageParams.type = option.type
+    this.pageParams.typeTitle = this.typeName[option.type]
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

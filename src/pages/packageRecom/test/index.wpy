@@ -1,0 +1,28 @@
+<template>
+  <view class='msg-ctner'>
+      测试列表
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Index extends wepy.page {
+  config = {
+    // navigationBarBackgroundColor: '#09103b',
+    // navigationBarTextStyle: '#FFF',
+    navigationBarTitleText: '测试列表'
+  };
+  components = {
+  };
+  data = {
+    isRepair: false, // 检修
+    isBad: false
+  };
+  methods = {
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>
+

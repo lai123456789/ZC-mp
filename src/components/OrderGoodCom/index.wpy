@@ -1,0 +1,277 @@
+<template>
+  <view class="cat-item-ctner">
+    <!--    全部订单列表接口   start-->
+    <block wx:if="{{swiperIndex == 0}}">
+      <view class="order-status-order">
+        <text wx:if="{{item.companyName}}">{{item.companyName}} > </text>
+        <text wx:elif="{{item.orderDetails.length == 1}}">{{item.orderDetails[0].companyName}} > </text>
+        <text wx:else>真成优选 > </text> <!-- 如果多个商家，只显示真成优选 -->
+        <text   wx:if="{{item.payStatus == 0 }}">待支付<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:elif="{{item.payStatus == 1 }}">已支付<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:elif="{{item.payStatus == 2 }}">已退款<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:elif="{{item.payStatus == 3 }}">部分退款<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:elif="{{item.payStatus == 4 }}">支付失败<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:else>待发货</text>
+      </view>
+      <block  wx:if="{{item.orderDetails.length == 1 }}">
+        <view class="goods-outer" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem'>
+          <view class='cat-m'>
+            <image src='{{subItem.goodsIco}}'/>
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{subItem.goodsName}}
+            </view>
+            <view class='goods-des'>
+              <text class="colorY" style="line-height:30rpx"><text wx:if="{{subItem.colorName}}">颜色：{{subItem.colorName}} </text>
+                <text> {{subItem.specification}}</text>
+              </text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:else> <!--   如果多个商品就合并-->
+        <view class="all-more" style="width: 100%;display: flex;flex-flow: row wrap;">
+          <view class="goods-outer-more" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem' style="margin-bottom:80rpx">
+            <view class='cat-m-more'>
+              <image src='{{subItem.goodsIco}}' style="width: 123rpx !important;height:123rpx !important; margin:10rpx;"/>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="order-num-outer">
+        <text>共 {{item.goodsCount}} 件 合计：</text>
+<!--        <text>￥{{item.totalMoney}}</text>-->
+        <text wx:if="{{item.payAmount}}">￥{{item.payAmount}}</text>
+        <text wx:if="{{item.actualAmount}}">￥{{item.actualAmount/100}}</text>
+      </view>
+    </block>
+
+    <!--    待付款列表接口   start-->
+    <block wx:elif="{{swiperIndex == 1 && item.orderDetails}}">
+      <view class="order-status-order">
+        <text wx:if="{{item.companyName}}">{{item.companyName}} > </text>
+        <text wx:elif="{{item.orderDetails.length == 1}}">{{item.orderDetails[0].companyName}} > </text>
+        <text wx:else>真成优选 > </text> <!-- 如果多个商家，只显示真成优选 -->
+        <text   wx:if="{{item.payStatus == 0 }}">待支付<text wx:if="{{item.orderType== 4}}">（团购）</text></text>
+        <text   wx:elif="{{item.payStatus == 1 }}">已支付</text>
+        <text   wx:elif="{{item.payStatus == 2 }}">已退款</text>
+        <text   wx:elif="{{item.payStatus == 3 }}">部分退款</text>
+        <text   wx:elif="{{item.payStatus == 4 }}">支付失败</text>
+      </view>
+      <block  wx:if="{{item.orderDetails.length == 1 }}">
+        <view class="goods-outer" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem'>
+          <view class='cat-m'>
+            <image src='{{subItem.goodsIco}}' />
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{subItem.goodsName}}
+            </view>
+            <view class='goods-des'>
+              <text class="colorY" style="line-height:30rpx"><text wx:if="{{subItem.colorName}}">颜色：{{subItem.colorName}} </text>
+                <text> {{subItem.specification}}</text>
+              </text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:else> <!--  如果多个商品就合并-->
+        <view class="all-more" style="width: 100%;display: flex;flex-flow: row wrap;">
+          <view class="goods-outer-more" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem' style="margin-bottom:80rpx">
+            <view class='cat-m-more'>
+              <image src='{{subItem.goodsIco}}' style="width: 123rpx !important;height:123rpx !important; margin:10rpx;"/>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="order-num-outer">
+        <text>共 {{item.goodsCount}} 件 合计：</text>
+        <text wx:if="{{item.payAmount}}">￥{{item.payAmount}}</text>
+        <text wx:if="{{item.actualAmount}}">￥{{item.actualAmount/100}}</text>
+      </view>
+      <view class="order-button-outer">
+         <!--待付款操作-->
+          <view class="order-btn order-btn-active" hover-class='icx-click-hover'
+                wx:if="{{item.payStatus !== null}}">去支付</view>
+      </view>
+    </block>
+
+    <!--    待发货 列表接口   start-->
+    <block wx:elif="{{swiperIndex == 2 && item.orderDetails}}">
+      <view class="order-status-order">
+        <text wx:if="{{item.companyName}}">{{item.companyName}} > </text>
+        <text wx:elif="{{item.orderDetails.length == 1}}">{{item.orderDetails[0].companyName}} > </text>
+        <text wx:else>真成优选 > </text> <!-- 如果多个商家，只显示真成优选 -->
+        <text>待发货</text>
+      </view>
+      <block  wx:if="{{item.orderDetails.length == 1 }}">
+        <view class="goods-outer" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem'>
+          <view class='cat-m'>
+            <image src='{{subItem.goodsIco}}' />
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{subItem.goodsName}}
+            </view>
+            <view class='goods-des'>
+              <text class="colorY" style="line-height:30rpx"><text wx:if="{{subItem.colorName}}">颜色：{{subItem.colorName}} </text>
+                <text> {{subItem.specification}}</text>
+              </text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:else> <!--  如果多个商品就合并-->
+        <view class="all-more" style="width: 100%;display: flex;flex-flow: row wrap;">
+          <view class="goods-outer-more" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem' style="margin-bottom:80rpx">
+            <view class='cat-m-more'>
+              <image src='{{subItem.goodsIco}}' style="width: 123rpx !important;height:123rpx !important; margin:10rpx;"/>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="order-num-outer">
+        <text>共 {{item.goodsCount}} 件 合计：</text>
+        <text wx:if="{{item.payAmount}}">￥{{item.payAmount}}</text>
+        <text wx:if="{{item.actualAmount}}">￥{{item.actualAmount/100}}</text>
+      </view>
+      <view class="order-button-outer">
+        <!--待发货操作-->
+        <view class="order-btn order-cancel" hover-class='icx-click-hover'
+              wx:if="{{item.canApplyToCancel}}"  catchtap="orderBtnA(2,{{item}})">取消订单</view>
+        <view class="order-btn order-cancel" hover-class='icx-click-hover'
+              wx:elif="{{!item.canApplyToCancel}}" catchtap="orderBtnA(7,{{item}})">订单取消中</view>
+      </view>
+    </block>
+
+    <!--    待收货列表接口   start-->
+    <block wx:elif="{{item.logisticsBillDetails}}">
+      <view class="order-status-order">
+        <text wx:if="{{item.tradeCompany.companyName}}">{{item.tradeCompany.companyName}} > </text>
+        <text wx:elif="{{item.logisticsBillDetails.length == 1}}">{{item.logisticsBillDetails[0].companyName}} > </text>
+        <text wx:else>真成优选 > </text> <!-- 如果多个商家，只显示真成优选 -->
+        <text  >待收货</text>
+      </view>
+      <block  wx:if="{{item.logisticsBillDetails.length == 1 }}">
+        <view class="goods-outer" wx:for="{{item.logisticsBillDetails}}" wx:key='index' wx:for-item='subItem'>
+          <view class='cat-m'>
+            <image src='{{subItem.goodsIco}}' />
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{subItem.goodsName}}
+            </view>
+            <view class='goods-des'>
+              <text class="colorY" style="line-height:30rpx"><text wx:if="{{subItem.colorName}}">颜色：{{subItem.colorName}} </text>
+                <text> {{subItem.goodsSpec}}</text>
+              </text>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:else> <!--  如果多个商品就合并-->
+        <view class="all-more" style="width: 100%;display: flex;flex-flow: row wrap;">
+          <view class="goods-outer-more" wx:for="{{item.logisticsBillDetails}}" wx:key='index' wx:for-item='subItem' style="margin-bottom:80rpx">
+            <view class='cat-m-more'>
+              <image src='{{subItem.goodsIco}}' style="width: 123rpx !important;height:123rpx !important; margin:10rpx;"/>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="order-num-outer">
+        <text>共 {{item.num}} 件 合计：</text>
+        <text>￥{{item.amount/100}}</text>
+      </view>
+      <view class="order-button-outer">
+         <!--待收货操作-->
+          <view class="order-btn order-btn-active" hover-class='icx-click-hover'
+                catchtap="orderBtnA(3,{{item}})">查看物流</view>
+          <view class="order-btn order-btn-active" hover-class='icx-click-hover'
+              catchtap="orderBtnA(5,{{item}})">确认收货</view>
+      </view>
+    </block>
+
+    <!--    待评价列表接口   start-->
+    <block wx:else>
+      <view class="order-status-order">
+        <text wx:if="{{item.companyName}}">{{item.companyName}} ></text>
+        <text>待评价</text>
+      </view>
+      <view class="goods-outer">
+          <view class='cat-m'>
+            <image src='{{item.goodsIco}}' />
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{item.goodsName}}
+            </view>
+            <view class='goods-des'>
+              <text class="colorY" style="line-height:30rpx"><text wx:if="{{item.goodsColor}}">颜色：{{item.goodsColor}} </text>
+                <text> {{item.specification}}</text>
+              </text>
+            </view>
+          </view>
+        </view>
+      <view class="order-num-outer">
+        <text>共 {{item.goodsNumber}} 件 合计：</text>
+        <text>￥{{item.actualAmount/100}}</text>
+      </view>
+      <view class="order-button-outer">
+        <!--待评价操作-->
+          <view class="order-btn order-btn-active" hover-class='icx-click-hover'
+                catchtap="orderBtnA(4,{{item}})">去评价</view>
+      </view>
+    </block>
+
+  </view>
+
+</template>
+
+<script>
+// 待发货：提醒发货
+// 待收货：查看物流，确认收货
+// 待付款：退款，付款
+// 待评价：评价
+// （0：全部订单 1：待支付 2：待发货 4：待收货 5：待评价）
+
+import wepy from 'wepy';
+export default class SureGoodsCom extends wepy.component {
+  props = {
+      item: {
+          type: Object,
+          default: {}
+      },
+    swiperIndex: {
+      type: [Number, String],
+      default: 0
+    },
+    // downTime:{
+    //   type: String,
+    // }
+  }
+  data = {
+  }
+  methods = {
+      numAdd() {
+      },
+      numReduce() {
+      },
+      orderBtnA(key, item) {
+          this.$emit('operate',key, item)  //新改
+        console.log(key)
+        console.log(item)
+      }
+  }
+  watch = {
+      item(newVal, oldVal) {
+      },
+  }
+  onLoad() {
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import './index.scss';
+</style>

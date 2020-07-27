@@ -1,0 +1,40 @@
+<template>
+  <view class='pay-fail-ctner'>
+    <view class="fail-top">
+      <view class="fail-top-inner">
+        <image src="../../../images/fail_icon.png"></image>
+        <view>支付失败 请重新支付</view>
+      </view>
+
+    </view>
+    <view class="pat-btn-wrap">
+      <button class="icx-btn-same-sure" @tap='continueBuyA'>继续逛逛</button>
+      <button class="icx-btn-same-cancel" @tap='checkOrderA'>查看订单</button>
+    </view>
+
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+// import miniPro from '@/utils/wepy-pro.js';
+export default class PayFail extends wepy.page {
+  config = {
+    navigationBarTitleText: '支付失败'
+  };
+  data = {
+  };
+  methods = {
+    continueBuyA() {
+      wepy.switchTab({ url: `/pages/index/index` })
+    },
+    checkOrderA() {
+      wepy.redirectTo({ url: `/pages/packageMine/order/index?current=0` })
+    }
+  };
+  onLoad() { }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

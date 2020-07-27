@@ -1,0 +1,26 @@
+<template>
+  <view class="module">
+          <slot></slot>
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+export default class preheatingModule extends wepy.component {
+  props = {
+  }
+  data = {
+  }
+  methods = {
+
+  }
+  watch = {
+  }
+  onLoad() {
+
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import './index.scss';
+</style>

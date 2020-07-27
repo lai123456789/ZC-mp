@@ -1,0 +1,352 @@
+<template>
+  <view class='sure-order-ctner'>
+    <view class="sure-order-inner">
+        <view class="address-outer" @tap='toChoiceAddressA'>
+          <image src='../../../images/location_a.png'></image>
+          <text>{{addressStr ? addressStr : '请选择地址'}}</text>
+          <image src='../../../images/unfold.png'></image>
+        </view>
+        <view class="order-outer">
+          <repeat for="{{orderDetailObj}}" key="index" index="index" item="item">
+<!--            integration 表示当前可用积分值  Useintegration 表示本单使用了多少积分 UseintegratMoney表示使用积分抵扣了多少现金-->
+              <SureCom :current="index" :item="item" :integration="Currentintegration"
+                  :orderMasterId="params.orderMasterId"  :Useintegration="integration"
+                       :UseintegratMoney="integrationAmount"
+              ></SureCom>
+          </repeat>
+        </view>
+      <view class="order-num-outer-integration" wx:if="{{params.orderMasterId == null}}" ><!-- 积分模块 start-->
+        <view class="q1" wx:if="{{params.orderMasterId == null}}">
+          <text>当前可用积分：
+            <block wx:if="{{Currentintegration > 1000 && check}}">(可抵扣{{deductibleMoney}}元)</block>
+<!--            <block wx:else>(积分达1000以上方可抵扣现金)</block>-->
+          </text>
+          <text>{{Currentintegration}}</text>
+        </view>
+        <view class="q1" wx:if="{{params.orderMasterId == null}}">
+          <text>当前可用余额：
+          </text>
+          <text>{{accountBalance}}</text>
+        </view>
+        <view class="q2" @tap="choiceF" wx:if="{{show && params.orderMasterId == null}}">
+          <!--orderMasterId存在 表示在未付款订单进来的 -->
+          <text>选择商品抵用券</text>
+          <image src="../../../images/topdian.png"></image>
+        </view>
+        <view wx:if="{{!show}}" class="q4">
+          <text>商品抵用券已优惠：</text>
+          <text>-￥{{favourableMoney}} ></text>
+        </view>
+
+      </view>  <!--积分模块 end-->
+      <view wx:else><!--这块是未付款列表订单进来的  -->
+        <block wx:if="{{params.orderMasterId !== null && integration > 0 && integrationAmount > 0}}">
+          <view class="order-num-outer-integrationA">   <!-- 积分模块 start-->
+            <!--我的订单-未付款订单列表页 进来的 并且integration使用了多少积分 和integrationAmount积分抵扣了多少现金 两者都不为0的时候才展示-->
+            <view class="q4" style="border-bottom: 2rpx solid #EEEEEE">
+              <text>本单使用积分：</text>
+              <text style="margin-left: 32rpx">{{integration}}</text>
+            </view>
+            <view class="q4">
+              <text>积分抵扣已优惠：</text>
+              <text style="margin-left: 10rpx">-￥{{integrationAmount}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+    <view class="sure-order-bnt">
+      <text>合计：</text>
+      <text>￥{{totolPrice}}</text>
+      <view @tap='submitOrderA'  hover-class='icx-click-hover'>提交订单</view>
+    </view>
+  </view>
+  <view class="goods-spc-outer" wx:if="{{showGoodsPop}}" @tap.stop='specPopA'>
+    <view class="goods-spc-con">
+      <view class="goods-pop-same goods-g1" @tap.stop='pointsCredit'>
+        <view class="goods-pop-title">积分抵用券</view>
+        <view class="icx-btn-whiteBg-colorText">立即使用</view>
+      </view>
+      <view class="goods-pop-same goods-g2"   @tap.stop='balanceCredit'>
+        <view class="goods-pop-title">余额抵用券</view>
+        <view class="icx-btn-whiteBg-colorText">立即使用</view>
+      </view>
+      <view class="goods-pop-same goods-buy-btn">
+        <button  @tap.stop='specPopA' class="icx-btn-same-sure">不使用优惠</button>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import NoTip from '@/components/OrderNoDataTip/index'
+import SureCom from '@/components/SureGoodsCom/index'
+import {
+  apiFindOrderDetailF,
+  apiPayCreateF,
+  apiFindDefAddressF,
+  apiGetAccountMoneyF,
+} from '../../../services/mine/index';
+import miniPro from '@/utils/wepy-pro.js';
+import { apiGetUserInfoF } from '../../../services/memberIntegral';
+
+export default class SureOrder extends wepy.page {
+  config = {
+    navigationBarTitleText: '确认订单',
+    usingComponents: {
+      // 'van-action-sheet': '../../../components/vant/action-sheet/index',
+    }
+  };
+  components = {
+    NoTip: NoTip,
+    SureCom: SureCom
+  };
+  data = {
+    showGoodsPop: false,
+    accountBalance:"",
+    check: true,
+    remark:"",
+    orderId: '',
+    orderDetailArr: [],
+    orderDetailObj: {},
+    addressStr: '',
+    addressId: '',
+    payRemarksList: [],
+    totolPrice:"",
+    cartIds:'',
+    tempEcNo:'',
+    params:{
+      qrSk:'',
+      qrSi:'',
+      qrScene:'',
+      orderList:[],
+      addressId:"",
+      orderMasterId:'',
+    },
+    balance:"", //当前可用余额 单位分
+    Currentintegration:"", //当前可用积分值
+    integration:"", //本单使用了多少积分
+    integrationAmount:"",//积分抵扣了多少现金
+    apiIntegrationNum:"",//使用的抵扣积分值(传接口的参数)
+    apiBalance:"",//使用的余额抵扣数(传接口的参数)
+    show:true,
+    favourableMoney:"",
+    deductibleMoney:""
+  };
+  methods = {
+    specPopA(){
+      this.showGoodsPop = false;
+    },
+    choiceF() {
+      this.showGoodsPop = true;
+    },
+
+    submitOrderA() {
+      this.apiPayCreateA(this.apiPayCreateA.bind(this))
+    },
+    toChoiceAddressA() {
+      wepy.navigateTo({ url: `/pages/packageMine/addressList/index` })
+    },
+    pointsCredit(){  //积分抵扣
+      /**积分使用规则如下:
+       * 1. 按照1000的整倍数使用,比如你有1200积分，那么你只能使用1000积分。
+       * 2. 1积分等于1分钱，1000积分也即10块 积分不足1000以上不能无法抵扣优惠；
+       * 3. 使用积分总额不能超过订单的总额 **/
+      console.log("fawefwea")
+      let t = this
+      t.check = false
+      let integration = t.Currentintegration //当前积分
+      if(integration < 1000){
+        miniPro.showToast("积分不足1000，无法使用积分抵扣部分现金！")
+        return
+      }
+      let OrderMoney = t.totolPrice //订单总金额
+      let maxTime = Math.floor((integration/1000))
+      let i = maxTime
+      for(;i >=0; i--){  //计算规则 积分总额不能超过订单的总额
+        if(OrderMoney - i*1000/100 > 0){
+          break
+        }
+      }
+      let num = i*1000
+      let trulyMoney = i*1000/100
+      if(trulyMoney > 0){ //如果大于0 表示已经使用积分抵扣了现金  页面上直接展示抵扣金额即可
+        t.favourableMoney = trulyMoney
+        t.show = false
+      }
+      t.apiIntegrationNum = num
+      let updateintegration = integration - num
+      t.Currentintegration = updateintegration //积分抵扣后 当前的可用积分剩余
+      let indexMoney = t.totolPrice
+      t.totolPrice =  (indexMoney - trulyMoney).toFixed(2) //积分抵扣后的合计金额
+      miniPro.showToast("选择积分抵用券，已为您抵扣部分金额")
+      setTimeout(() => {
+        t.showGoodsPop = false;
+        t.$apply();
+      },2000)
+      t.$apply();
+    },
+    balanceCredit(){  //余额抵扣
+      let t = this
+      t.check = false
+      let balanceNum = t.balance //当前余额 单位 分
+      if(balanceNum < 1000){
+        miniPro.showToast("余额不足10元，无法使用余额抵扣商品金额！")
+        return
+      }
+      let OrderMoney = t.totolPrice //订单总金额
+      let maxTime = Math.floor((balanceNum/1000))
+      let i = maxTime
+      for(;i >=0; i--){  //抵扣计算规则 余额总额不能超过订单的总额
+        if(OrderMoney - i*1000/100 > 0){
+          break
+        }
+      }
+      let num = i*1000
+      let trulyMoney = i*1000/100
+      if(trulyMoney > 0){ //如果大于0 表示已经使用余额抵扣了现金  页面上直接展示抵扣金额即可
+        t.favourableMoney = trulyMoney
+        t.show = false
+      }
+      t.apiBalance = num
+      let updateintegration = balanceNum - num
+      t.balance = updateintegration //余额抵扣后 当前的可用余额剩余
+      t.accountBalance = (updateintegration/100).toFixed(2)
+      let indexMoney = t.totolPrice
+      t.totolPrice =  (indexMoney - trulyMoney).toFixed(2) //余额抵扣后的合计金额
+      miniPro.showToast("选择余额抵用券，已为您抵扣部分金额")
+      setTimeout(() => {
+        t.showGoodsPop = false;
+        t.$apply();
+      },2000)
+      t.$apply();
+    }
+  };
+
+  apiFindOrderDetailA(fun) {
+    let dataBase = this.params;
+    apiFindOrderDetailF(dataBase, fun).then((result) => {
+      this.orderDetailObj = result.children
+      this.totolPrice = result.totalPrice
+      this.integration = result.integration  //本单使用多少积分
+      this.integrationAmount = result.integrationAmount //积分抵扣了多少钱
+      this.params.orderList = result.children
+      this.params.orderMasterId = result.orderMasterId
+      this.tempEcNo = result.tempEcNo
+      this.$apply()
+    }).catch(() => { });
+  }
+  apiFindDefAddressFA(fun) {
+    apiFindDefAddressF(fun).then((result) => {
+      this.addressStr = `${result.province} ${result.city} ${result.district}`
+      this.addressId = result.id
+      wepy.$instance.globalData.addressObj.addressStr = ''
+      wepy.$instance.globalData.addressObj.addressId = ''
+      this.$apply()
+    }).catch(() => { });
+  }
+  apiPayCreateA(fun) {
+    let list = this.params.orderList
+    let addressId = this.addressId
+    let orderMasterId = this.params.orderMasterId
+    let integration,balance
+    if(this.apiIntegrationNum > 0){
+      integration = this.apiIntegrationNum
+    }else{
+      integration = ""
+    }
+    if(this.apiBalance > 0){
+      balance = this.apiBalance
+    }else{
+      balance = ""
+    }
+    let tempEcNo = this.tempEcNo
+    let paramsData = {
+      //   orderList: list,  直接点立即购买进来的
+      // orderMasterId: orderMasterId,
+      addressId: addressId,
+      integration:integration, // 新增积分参数
+      deductAmount:balance,// 新增余额参数
+      tempEcNo:tempEcNo,
+      remark:this.remark,
+    }
+    apiPayCreateF(paramsData, fun).then(msg =>{
+      let data = msg
+      miniPro.requestPayment(data).then((result) => {
+        miniPro.showToast('支付成功')
+        setTimeout(() => {
+          wepy.navigateTo({ url: `/pages/packageMine/paySuccess/index` })
+        }, 1500)
+      }).catch(() => {
+        miniPro.showToast('支付失败')
+        setTimeout(() => {
+          wepy.navigateTo({ url: `/pages/packageMine/payFail/index` })
+        }, 1500)
+      });
+    }).catch(() => { });
+  }
+  GetUserInfoF(){ //获取用户积分信息
+    apiGetUserInfoF().then(msg => {
+      this.Currentintegration = msg.integration
+      let integration = this.Currentintegration
+      let OrderMoney = this.totolPrice //订单总金额
+      let maxTime = Math.floor((integration/1000))
+      let i = maxTime
+      for(;i >=0; i--){
+        if(OrderMoney - i*1000/100 > 0){
+          break
+        }
+      }
+      let num = i*1000
+      let trulyMoney = i*1000/100
+      this.deductibleMoney = trulyMoney //可抵扣多少钱
+      this.$apply();
+    }).catch(() => {})
+  };
+  apiGetAccountMoney(fun){
+    let t = this
+    apiGetAccountMoneyF(fun).then((result) => {
+      t.balance = result.balance  //未换算的余额 单位分
+      let moneyFix = (result.balance)/100  //分 -> 元
+      t.accountBalance = moneyFix.toFixed(2) //换算后的金额
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  events = {
+    'order-detail-input': (value, index) => {
+      let list = this.params.orderList
+      list[index].remarks = value
+      console.log(value)
+      this.$apply()
+    },
+  }
+  onLoad(option) {
+    this.params = option;
+    this.params.orderMasterId = option.orderMasterId
+    this.cartIds = option.cartIds
+    this.$apply()
+    setTimeout(() => {
+      this.apiFindOrderDetailA(this.apiFindOrderDetailA.bind(this))
+    }, 30);
+    setTimeout(() => {
+      this.GetUserInfoF(this.GetUserInfoF.bind(this))
+      this.apiGetAccountMoney(this.apiGetAccountMoney.bind(this))
+
+    },700)
+    this.apiFindDefAddressFA(this.apiFindDefAddressFA.bind(this))
+  }
+
+  onShow() {
+    let { addressStr, addressId } = wepy.$instance.globalData.addressObj
+    if (addressId) {
+      this.addressStr = addressStr
+      this.addressId = addressId
+    }
+    // this.apiFindDefAddressFA(this.apiFindDefAddressFA.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

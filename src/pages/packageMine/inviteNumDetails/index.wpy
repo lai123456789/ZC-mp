@@ -1,0 +1,86 @@
+<template>
+  <view class="invite-record-ctner">
+    <scroll-view class="scroll-view" scroll-y="true" style="height:{{height+700}}rpx;" @scrolltolower="loadMore">
+      <view class="invite-index" wx:for="{{List}}" wx:key="ids">
+        <view class="invite-left">
+          <view class="L1"><image src="{{item.headImg}}"></image></view>
+          <view class="L2">
+            <view class="L2-one">
+              <text>{{item.userId}}</text>
+              <view>{{item.nickName}}</view>
+            </view>
+            <view class="L2-two">
+              <view class="month">{{item.userLevelEnum.desc}}</view>
+              <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/k2.png"></image>
+            </view>
+          </view>
+        </view>
+        <view class="invite-right">
+          {{item.createTime}}
+        </view>
+      </view>
+
+    </scroll-view>
+
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import miniPro from '@/utils/wepy-pro.js';
+import {
+  apiGetInviteListF // 获取邀请的会员列表
+} from '../../../services/mine/index'
+export default class withdrawalsRecord extends wepy.page {
+  config = {
+    navigationBarTitleText: '邀请会员明细'
+  };
+  components = {
+  };
+  data = {
+    height:wx.getSystemInfoSync().screenHeight,
+    List:[],
+    pageParams: {
+      offset: 0,
+      limit: 12,
+      hasMore:false,
+      page: 0,
+    },
+  };
+  methods = {
+    loadMore() { // 加载更多
+      if (!this.pageParams.hasMore) return
+      let offset = this.pageParams.offset;
+      if(offset == 0){
+        offset = this.pageParams.limit;
+      }else{
+        offset = offset + this.pageParams.limit;
+      }
+      this.pageParams.offset = offset;
+      this.apiGetInviteListFA(this.apiGetInviteListFA.bind(this))
+    },
+
+  }
+  apiGetInviteListFA(fun) {
+    let params = {
+      limit: this.pageParams.limit,
+      offset: this.pageParams.offset
+    }
+    apiGetInviteListF(params, fun).then((result) => {
+      let { rows, last,pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.List = this.List.concat(rows)
+      this.$apply()
+    }).catch(() => {
+    })
+  }
+  onLoad(option) {
+    this.apiGetInviteListFA(this.apiGetInviteListFA.bind(this))
+
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

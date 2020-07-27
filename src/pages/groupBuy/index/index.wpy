@@ -1,0 +1,153 @@
+
+<template>
+  <view class="index-ctner container-same">
+    <wxs src="../../../utils/filter.wxs" module="tools"></wxs>
+    <view class="ix-input-wrap">
+      <view class="input-search" @tap='bindfocusInput'>
+        <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/nav_button_search_default.png' />
+      </view>
+      <input  maxlength='200' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入商品" />
+      <view class="input-msg">
+        <image src='	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/nav_button_message_default.png' />
+      </view>
+    </view>
+    <view class="ix-goods-wrap">
+      <scroll-view scroll-y="true" lower-threshold="200" style = "height:{{height+400}}rpx;position: relative;" @scrolltolower="loadMore" scroll-with-animation = "true">
+        <view id = "top"></view>
+          <repeat for="{{ListArr}}" key="index" index="index" item="item">
+            <view class="content" @tap="toMsgA({{item.id}})">
+              <view class="img">
+                <image src="{{item.goodsIcon}}"/>
+                <view class="bg-text">
+                  <text>{{item.groupNumber}}人团</text>
+                  <image src='../../../images/yu.png' />
+                </view>
+              </view>
+              <view class="C1">
+                <text>{{item.goodsName}}</text>
+              </view>
+              <view class="C2">
+                <text>￥{{item.groupPrice}}</text>
+                <text>￥{{item.originalPrice}}</text>
+              </view>
+              <view class="C3">
+                <text>已团{{item.goodsSales}}件</text>
+                <image src='../../../images/gopin.png' />
+              </view>
+            </view>
+          </repeat>
+        <view id = "bottom"></view>
+      </scroll-view>
+
+    </view>
+
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import '../../../common/js/authProcess.js';
+  import {
+    apiGroupBuyF,
+    apiGroupPermissionF
+  } from '../../../services/index';
+
+  export default class Index extends wepy.page {
+    config = {
+      // navigationBarBackgroundColor: '#09103b',
+      // navigationBarTextStyle: '#FFF'
+      navigationBarTitleText: '商城拼团'
+    };
+    components = {};
+
+    mixins = [];
+
+    data = {
+      height:wx.getSystemInfoSync().screenHeight,
+      pageParams: {
+        offset: 0,
+        limit: 6,
+        hasMore:false
+      },
+      ListArr:[],
+      scrollH:'',
+      imgUrls: [],
+      indicatorDots: true,
+      currentId: ''
+
+    };
+
+    computed = {};
+
+    methods = {
+      toMsgA(id) {
+        this.currentId = id;
+        this.$apply()
+        this.apiGroupPermission(this.apiGroupPermission.bind(this));
+      },
+      loadMore() { // 加载更多
+        console.log('aaa')
+        if (!this.pageParams.hasMore) return
+
+        let offset = this.pageParams.offset;
+        if(offset == 0){
+           offset = this.pageParams.limit;
+        }else{
+           offset = offset + this.pageParams.limit;
+        }
+        this.pageParams.offset = offset;
+        this.apiGetGroupBuyDataFA(this.apiGetGroupBuyDataFA.bind(this))
+      }
+    };
+    apiGroupPermission(fun){
+      let param = {
+        id: this.currentId
+      };
+      apiGroupPermissionF(param,fun).then((result)=>{
+        wepy.navigateTo({ url: `/pages/groupBuy/Info/index?indexId=` + this.currentId })
+      }).catch(()=>{
+
+      });
+    };
+
+    apiGetGroupBuyDataFA(fun) {
+      let params = {
+        limit: this.pageParams.limit,
+        offset: this.pageParams.offset
+      }
+      apiGroupBuyF(params, fun).then(result => {
+        // this.ListArr = result.rows;
+        let { rows, last, pageNumber } = result
+        this.pageParams.hasMore = !last
+        this.ListArr = this.ListArr.concat(rows)
+        this.$apply()
+      }).catch(() => { })
+    }
+    async onLoad() {
+      console.log(wx.getSystemInfoSync().screenHeight)
+      this.apiGetGroupBuyDataFA(this.apiGetGroupBuyDataFA.bind(this));  //this.apiGetHomeDataFA.bind(this)
+      // var self = this;
+      // wx.getSystemInfo({
+      //   success: function(res) {
+      //     let scrollH = res.windowHeight;
+      //     self.setData({
+      //       scrollH:scrollH
+      //     });
+      //   }
+      // });
+    }
+    onShareAppMessage(res) {
+      if (res.from === 'button') {
+        // 来自页面内转发按钮
+      }
+      return {
+        title: '真成优选',
+        path: '/pages/index/index'
+      };
+    }
+  }
+</script>
+<style lang="scss">
+  @import './index.scss';
+</style>

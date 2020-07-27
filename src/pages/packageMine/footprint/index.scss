@@ -1,0 +1,29 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+page{
+}
+.footprint-ctner{
+    .collection-no {
+        height: rpx(356);
+        position: relative;
+        .in {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            text-align: center;
+            image {
+                width: rpx(127);
+                height: rpx(153);
+                display: inline-block;
+            }
+            view {
+                margin-top: rpx(20);
+                font-size: $size-unit;
+                color: $color-word-three;
+            }
+        }
+    }
+}

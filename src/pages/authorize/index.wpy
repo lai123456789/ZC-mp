@@ -1,0 +1,60 @@
+<template>
+  <view class='auth-container'>
+    <view class='auth-logo auth-same'>
+      <image src='../../images/logo_b.png'></image>
+    </view>
+    <view class='autn-name auth-same'>授权页面</view>
+    <view class='auth-description auth-same'>申请获取您的公开信息（昵称、头像等）</view>
+    <view class='auth-btn auth-same'>
+      <button class="btn icx-clear-after-border"  lang="zh_CN" @tap="cancelUserInfo">拒绝</button>
+      <button class="btn icx-clear-after-border" open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="onGotUserInfo">允许</button>
+    </view>
+  </view>
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import miniPro from '../../utils/wepy-pro';
+import Auth from '../../common/js/authProcess.js';
+import { refreshToken } from '../../services/login'
+import { EVENT_QUEUE_NAME } from '../../common/js/config'
+export default class Authorize extends wepy.page {
+  data = {
+    showModal:false,
+  };
+  methods = {
+    cancelUserInfo(){
+      miniPro.showToast("本次取消授权无法查看更多内容哦！")
+      setTimeout(() => {
+        wepy.switchTab({ url: '/pages/index/index' });
+      },1500)
+    },
+    hideModal() {
+      this.showModal = false
+    }
+  };
+  onGotUserInfo(e) {
+    let _auth = Auth.getInstance()
+    let { userInfo } = e.detail;
+    console.log(e)
+    if (userInfo) {
+      _auth.login(null, true).then(res => {
+        if (res == true) {
+          // wepy.$instance.globalData[EVENT_QUEUE_NAME].toDoEvent() 原先的
+
+          // let pages = getCurrentPages();//获取当前页面数
+          // let prevPage = pages[pages.length - 5]; // 上一级页面
+          wepy.navigateBack({ delta: 3 });//返回的页面数，如果 delta 大于现有页面数，则返回到首页,  原先是 返回1层
+        }
+      })
+    } else {
+      wepy.navigateBack({ delta: 1 });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import './index';
+</style>

@@ -1,0 +1,121 @@
+<template>
+  <view class="cat-item-ctner">
+    <block >
+      <view class="order-status-order">
+<!--        <text wx:if="{{item.companyName}}">{{item.companyName}} > </text>-->
+        <text wx:if="{{item.orderDetails.length == 1}}">{{item.orderDetails[0].companyName}} > </text>
+        <text wx:else>真成优选 > </text> <!-- 如果多个商家，只显示真成优选 -->
+<!--          state：:1-待支付；2/4-已失效；3-待结算；5-已入账-->
+        <block wx:if="{{swiperIndex == 0}}">
+          <text>{{item.createTime}}</text>
+          <text wx:if="{{item.state == 1}}">待支付</text>
+          <text wx:if="{{item.state == 2}}">已失效</text>
+          <text wx:if="{{item.state == 3}}">待结算</text>
+          <text wx:if="{{item.state == 4}}">已失效</text>
+          <text wx:if="{{item.state == 5}}">已入账</text>
+        </block>
+        <block wx:if="{{swiperIndex == 1}}">
+          <text>{{item.createTime}}</text>
+          <text>待结算</text>
+        </block>
+        <block wx:if="{{swiperIndex == 2}}">
+          <text>{{item.createTime}}</text>
+          <text>已入账</text>
+        </block>
+        <block wx:if="{{swiperIndex == 3}}">
+          <text>{{item.createTime}}</text>
+          <text>已失效</text>
+        </block>
+      </view>
+      <block  wx:if="{{item.orderDetails.length == 1 }}">
+        <view class="goods-outer" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem'>
+          <view class='cat-m'>
+            <image src='{{subItem.goodsIco}}' />
+          </view>
+          <view class="cat-m-t">
+            <view class='goods-name'>
+              {{subItem.goodsName}}
+            </view>
+          </view>
+          <view class="cat-m-R">
+            <view>
+              ¥{{(subItem.goodsAmount)/100}}
+            </view>
+            <view>
+              x{{subItem.goodsNumber}}
+            </view>
+          </view>
+        </view>
+        <view class="btn-cash">
+          <!--三种返利类型 购物返利   分享返利  推广返利-->
+          <!--estimatedAmount：预估返利到账时间。actualAmount：实际已入账时间-->
+          <view wx:if="{{item.estimatedAmount}}"
+             class="{{item.cashbackTypeEnum.key == 1?'activeGo':item.cashbackTypeEnum.key == 2?'activeShare':'activeSpread'}}">
+            {{item.cashbackTypeEnum.desc}}返利：¥ {{item.estimatedAmount/100}}
+          </view>
+          <view wx:elif="{{item.actualAmount}}"
+            class="{{item.cashbackTypeEnum.key == 1?'activeGo':item.cashbackTypeEnum.key == 2?'activeShare':'activeSpread'}}">
+            {{item.cashbackTypeEnum.desc}}返利：¥ {{item.actualAmount/100}}
+          </view>
+        </view>
+      </block>
+      <block wx:else> <!--  如果多个商品就合并-->
+        <view class="all-more" style="width: 100%;display: flex;flex-flow: row wrap;">
+          <view class="goods-outer-more" wx:for="{{item.orderDetails}}" wx:key='index' wx:for-item='subItem' style="margin-bottom:80rpx">
+            <view class='cat-m-more'>
+              <image src='{{subItem.goodsIco}}' style="width: 123rpx !important;height:123rpx !important; margin:10rpx;"/>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view class="order-num-outer">
+        <text wx:if="{{item.estimatedArrivalTime}}">记账时间： {{item.estimatedArrivalTime}}</text>
+        <text wx:elif="{{item.actualArrivalTime}}">入账时间： {{item.actualArrivalTime}}</text>
+        <text wx:else>暂无记账</text>
+      </view>
+      <view class="order-button-outer">
+         <!--待付款操作-->
+          <view class="order-btn order-btn-active" hover-class='icx-click-hover'
+                wx:if="{{item.payStatus !== null}}">去支付</view>
+      </view>
+    </block>
+
+
+  </view>
+
+</template>
+
+<script>
+
+import wepy from 'wepy';
+export default class SureGoodsCom extends wepy.component {
+  props = {
+      item: {
+          type: Object,
+          default: {}
+      },
+    swiperIndex: {
+      type: [Number, String],
+      default: 0
+    },
+
+  }
+  data = {
+  }
+  methods = {
+
+  }
+  watch = {
+      item(newVal, oldVal) {
+        console.log(newVal)
+      },
+  }
+  onLoad() {
+
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+@import './index.scss';
+</style>

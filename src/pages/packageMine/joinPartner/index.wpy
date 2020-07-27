@@ -1,0 +1,126 @@
+<template>
+  <view class='partner-ctner'>
+    <view class="partner-swiper-wrap">
+      <swiper
+        autoplay="{{autoplay}}"
+        interval="{{interval}}"
+        duration="{{duration}}"
+        current="{{current}}"
+        @change='bindchange'
+      >
+        <block wx:for="{{partnerArr}}" wx:key="index">
+          <swiper-item>
+            <view class="partner-same {{item.class}} {{index == current ? 'active' : ''}}">
+              <text>{{item.name}}</text>
+            </view>
+          </swiper-item>
+        </block>
+      </swiper>
+    </view>
+    <button class="icx-btn-same-sure" @tap="joinA">立即加入</button>
+    <view class="des">· 三种合伙人权益介绍 ·</view>
+    <view class="par-word-same">
+      <view class="par-word-con">
+         <text>分享者：</text>
+        <text>会员通过手机实名认证即可成为分享者并将获得平台唯一的分享者号码标识，任何用户都可免费成为分享者，分享者可通过推荐注册和分享商品获得相应奖金。</text>
+      </view>
+    </view>
+
+    <view class="par-word-same">
+      <view class="par-word-con">
+         <text>真诚掮客：</text>
+        <text>真诚掮客是平台代购者身份，以村组为单位，可为实际生活周边的客户在平台内代购商品，以解决特定用户群体平台购物需求。会员通过手机实名认证后，向平台申请，平台经过线下核实后给与相应的身份认证。真诚掮客客获得相应的平台权益。</text>
+      </view>
+    </view>
+
+    <view class="par-word-same">
+      <view class="par-word-con">
+         <text>合伙人：</text>
+        <text>用户通过平台分享者、真诚掮客或合伙人推荐成为合伙人，经平台审核后支付相应合伙人费用即可成为合伙人，合伙人享受平台线上收益及公司整体收益分享权益。</text>
+      </view>
+    </view>
+
+    <view class="par-img-same">
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_1.png'></image>
+          <view>订单奖励</view>
+        </view>
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_6.png'></image>
+          <view>注册奖励</view>
+        </view>
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_4.png'></image>
+          <view>首单奖励</view>
+        </view>
+
+    </view>
+
+    <view class="par-img-same">
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_5.png'></image>
+          <view>月卡奖励</view>
+        </view>
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_2.png'></image>
+          <view>年卡奖励</view>
+        </view>
+
+        <view class="par-img-item" @tap='toPartnerDocA'>
+          <image src='../../../images/qy_3.png'></image>
+          <view>平台分红</view>
+        </view>
+
+    </view>
+
+    <view class="img-bottom" @tap='toPartnerDocA'>
+      <image src='../../../images/qy_7.png'></image>
+    </view>
+
+      
+
+
+
+    
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class JoinPartner extends wepy.page {
+  config = {
+    navigationBarTitleText: '加入合伙人'
+  };
+  data = {
+    partnerArr: [
+      { name: '真成掮客', class: 'p-b', type: 3 },
+      { name: '分享者', class: 'p-a', type: 1 },
+      { name: '合伙人', class: 'p-c', type: 2 }
+    ],
+    autoplay: false,
+    interval: 5000,
+    duration: 1000,
+    current: 1
+  };
+  methods = {
+    bindchange(e) {
+      this.current = e.detail.current
+    },
+    joinA() {
+      let _type = this.partnerArr[this.current].type
+      wepy.navigateTo({ url: `/pages/packageMine/joinPartnerGao/index?type=${_type}` });
+    },
+    toPartnerDocA() {
+      wepy.navigateTo({ url: '/pages/packageMine/partnerDocument/index' });
+    }
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

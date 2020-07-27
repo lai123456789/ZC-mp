@@ -1,0 +1,106 @@
+<template>
+  <view class='logistics-ctner'>
+      <view class="logis-inner">
+
+        <view class="logis-status-outer">
+          <!-- <view class="logis-goods">
+            <image src=''></image>
+            <view>迪奥唇膏口红</view>
+          </view> -->
+          <view class="logis-status">
+            <view>{{topStatus}}</view>
+            <view>包裹离目的地越来越近了</view>
+          </view>
+        </view>
+
+        <view class="logis-which-outer">
+          <view class="which-one">
+            <view>{{logsObj.expressCompany}}</view>
+            <view>订单号：{{logsObj.expressNum}}</view>
+          </view>
+          <!-- <view class="which-two">
+            申通快递 39554340001654
+          </view> -->
+        </view>
+
+        <view class="logis-info-outer">
+          <view class="logis-item {{index == 0 ? 'active' : ''}}" wx:for='{{pageList}}' wx:key="index">
+            <view class="point-outer">
+              <view class="point">
+                <view class="point-inner"></view>
+              </view>
+            </view>
+            <view class="logis-a">
+              <text>{{item.status}}</text>
+            </view>
+            <view class="logis-b">{{item.context}}</view>
+            <view class="logis-c">{{item.time}}</view>
+          </view>
+        </view>
+
+      </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+// import miniPro from '@/utils/wepy-pro.js';
+import { apiLogisticsInfoF } from '../../../services/mine/index'
+export default class LogisticsInfo extends wepy.page {
+  config = {
+    navigationBarTitleText: '查看物流'
+  };
+  components = {
+  };
+  data = {
+    orderId: '',
+    logsObj: '',
+    pageList: [],
+    topStatus: '--'
+  };
+  methods = {
+    continueBuyA() {
+      wepy.switchTab({ url: `/pages/index/index` })
+    },
+    checkOrderA() {
+      wepy.navigateTo({ url: `/pages/packageMine/order/index` });
+    }
+  };
+  apiLogisticsInfoFA(fun) {
+
+    apiLogisticsInfoF(this.orderId, fun).then((result) => {
+      let _logisticsInfoList = result.logisticsInfoList
+      // this.pageList = _logisticsInfoList || []
+      this.logsObj = result
+      this.topStatus = _logisticsInfoList && _logisticsInfoList[0] && _logisticsInfoList[0].context
+      this.$apply()
+    }).catch(() => { });
+  }
+  events = {}
+  onLoad(option) {
+    // this.orderId = "option.id"
+    // setTimeout(() => {
+    //   this.apiLogisticsInfoFA(this.apiLogisticsInfoFA.bind(this))
+    // }, 10);
+    let arr = [
+      {context: "【代收点】您的快件已签收，签收人在【石街新村中通分部(西乡固戍石街新村6巷15号)】领取。",
+        ftime: "2020-04-22 20:22:02",
+        status: "签收",
+        time: "2020-04-22 20:22:02"},
+      {context: "【代收点】您的快件已签收，签收人在【石街新村中通分部(西乡固戍石街新村6巷15号)】领取。",
+        ftime: "2020-04-22 20:22:02",
+        status: "签收",
+        time: "2020-04-22 20:22:02"},
+      {context: "【代收点】您的快件已签收，签收人在【石街新村中通分部(西乡固戍石街新村6巷15号)】领取。",
+        ftime: "2020-04-22 20:22:02",
+        status: "签收",
+        time: "2020-04-22 20:22:02"}
+    ]
+    this.pageList = arr
+
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

@@ -1,0 +1,309 @@
+
+<template>
+  <view class="recom-ctner container-same">
+    <wxs src="../../utils/filter.wxs" module="tools"></wxs>
+    <view class="recom-same-top">
+      <view class="recom-same-content">
+        <view class="recom-des-round">
+          <view class="recom-des">
+            <view class="t1">
+              <view class="t1-one">
+               <view><open-data type="userAvatarUrl"></open-data></view>
+              </view>
+              <view class="t1-two">
+                <view><open-data type="userNickName"></open-data></view>
+                <view wx:if="{{Info.userType !== 0}}">邀请码：{{userId}}</view>
+              </view>
+              <view class="t2">
+                <view class="t2-one icx-btn-colorBg-whiteText" @tap="newRead">
+                  <image src="../../images/new-people.png"></image>
+                  <view>新人必读</view>
+                </view>
+                <view class="t2-three icx-btn-colorBg-whiteText" @tap="commonProblem">
+                  <image src="../../images/commonProblem.png"></image>
+                  <view>常见问题</view>
+                </view>
+              </view>
+            </view>
+
+          </view>
+        </view>
+
+      </view>
+
+    </view>
+    <view class="recom-same-center">
+      <view class="center-1">
+        <text>我的积分
+        </text>
+        <image src="../../images/twoJ.png"></image>
+        <text> {{integralInfo.integration}}</text>
+        <button class="icx-btn-same-sure" @tap="toIntegral">领取积分</button>
+      </view>
+      <view class="center-around  {{Info.userLevel === 0 ? 'css0' : Info.userLevel === 1 ? 'css1' : 'css2'}}"
+            @tap="goMember()">
+        <block  wx:if="{{Info.userLevel === 0}}">
+          <view class="topImg">普通会员</view>
+          <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/k3.png"></image>
+        </block>
+        <block  wx:if="{{Info.userLevel === 1}}">
+          <view class="topImg">月卡会员</view>
+          <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/k2.png"></image>
+        </block>
+        <block  wx:if="{{Info.userLevel === 2}}">
+          <view class="topImg">年卡会员</view>
+          <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/k1.png"></image>
+        </block>
+        <view class="endTime" wx:if="{{Info.userLevel !== 0}}">  <!---->
+          <view>有效期： {{Info.vipEndTime}}</view>
+          <view catchtap="goMemberBuy">会员续费 ></view>
+        </view>
+
+        <view class="ordinaryMember" wx:if="{{Info.userLevel == 0}}">  <!---->
+          <view catchtap="goMemberBuy">升级会员 ></view>
+        </view>
+        <view class="index-line">
+          <view class="{{Info.userLevel === 0 ? 'color-line0' : Info.userLevel === 1 ? 'color-line1' : 'color-line2'}}" style="width: 30%"></view>
+        </view>
+        <view class="bottom-view">
+          <view class="grow-text">
+            <text>成长值</text>
+            <text> {{integralInfo.growth}}</text>
+          </view>
+          <view class="picture-text-index">
+              <view class="every">
+                <view class="every-center">
+                  <view><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/menber.png"></image></view>
+                </view>
+                <view>会员礼</view>
+              </view>
+            <view class="every">
+              <view class="every-center">
+                <view><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/member-1yuan.png"></image></view>
+              </view>
+              <view>1元购</view>
+            </view>
+            <view class="every">
+              <view class="every-center">
+                <view><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/miao1.png"></image></view>
+              </view>
+              <view>专属秒杀</view>
+            </view>
+            <view class="every">
+              <view class="every-center">
+                <view><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/xianxia.png"></image></view>
+              </view>
+              <view>新品试用</view>
+            </view>
+            <view class="every">
+              <view class="every-center">
+                <view><image src="	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/all-tequan.png"></image></view>
+              </view>
+              <view>全部特权</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="center-room">
+        <view wx:for="{{roomList}}" wx:key="roomid" class="room-item">
+          <view @tap="goRoom({{item}})" class="room">
+<!--            /** 101-直播中；102-未开始/直播倒计时；103-已结束/查看回放；104-禁播；105-暂停中；106-异常；107-已过期 */-->
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 101 || item.live_status == 106}}">
+              <text>直播中</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 102}}">
+              <text>直播倒计时</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 103}}">
+              <text>查看回放</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 104}}">
+              <text>已禁播</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 105}}">
+              <text>暂停中</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 107}}">
+              <text>已过期</text>
+              <image src="../../images/livejian.png"></image>
+            </view>
+            <image src="{{item.share_img}}"></image>
+            <view class="bottom">
+              {{item.name}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+<!--    <view class="recom-play-cheng">  视频有了再打开-->
+<!--      <view class="p1">玩转真成优选</view>-->
+<!--      <view class="p2">-->
+<!--        <video src="https://csmall-1259120104.cos.ap-guangzhou.myqcloud.com/videos/lv_0_20200313193022.mp4"></video>-->
+<!--      </view>-->
+<!--    </view>-->
+    <scroll-view  scroll-y="true" style="height: 100%;overflow-y: hidden" @scrolltolower="loadMore">
+        <view class="we">我们的故事</view>
+         <view class="recom-same" wx:for="{{taleArr}}" @tap='toTaleDetailA({{item.id}})'  wx:for-index="index" wx:for-item="item" wx:key="index">
+           <view class="recom-title">
+              <image src='{{item.authorHead}}'></image>
+              <text>{{item.authorName}}</text>
+              <image src='	https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/attention_favor_fill.png'></image>
+              <text>{{item.readCount}}人看过</text>
+          </view>
+          <view class="recom-img">
+            <image src="{{item.taleCover}}"></image>
+          </view>
+          <view class="recom-des">
+            {{item.taleName}}
+          </view>
+        </view>
+
+        <view class="tips1" style="text-align: center">
+          <view wx:if="{{hasMore}}" style="display: flex;flex-direction: row;align-items: center;align-self: center;justify-content: center;">
+          <icon type="waiting" size="45"/><text>玩命的加载中...</text></view>
+          <view wx:else><text>没有更多内容了</text></view>
+        </view>
+
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import Auth from '../../common/js/authProcess.js';
+import { apiTaleFindPageF } from '../../services/classify';
+import miniPro from '../../utils/wepy-pro'
+import { apiGetUserInfoF } from '../../services/memberIntegral';
+import { apiInfoF } from '../../services/cart';
+import { apiGetRoomListF } from '../../services/mine'
+import dateFormat from '../../utils/base/dateFormat';
+import countDown from '../../utils/date';
+export default class Recom extends wepy.page {
+  config = {
+  navigationBarBackgroundColor: '#FE616A',
+  navigationBarTitleText: '真成优选',
+    enablePullDownRefresh:true //开启下拉刷新
+  };
+
+  data = {
+    roomList:[],
+    integralInfo:{},
+    Info:{},
+    userId:'',//推荐码
+    goodsArr:[
+      {goodsName:"卫衣产品"},
+      {goodsName:"面膜产品"},
+      {goodsName:"化妆品"},
+      {goodsName:"水果产品"},
+      {goodsName:"蔬菜产品"}
+    ],
+    taleArr: [],
+    hasMore: false,
+    pageParams: {
+      page: 0
+    },
+  };
+  methods = {
+    goMemberBuy(){
+      wepy.navigateTo({ url: '/pages/packageMine/joinMembers/index' });
+    },
+    goRoom(e){
+      let userId = this.userId
+      let sk = Math.random().toString(21).substr(4);
+      let customParams = encodeURIComponent(JSON.stringify({ si:userId,sk:sk,room_id:e.roomid }))
+      wepy.navigateTo({
+        url: `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.roomid}&custom_params=${customParams}`
+      })
+    },
+    newRead(){ //新人必读
+      wepy.navigateTo({ url: `/pages/packageIntegral/newPeopleRead/index` });
+    },
+    commonProblem(){//常见问题
+      wepy.navigateTo({ url: `/pages/packageIntegral/commonProblem/index` });
+    },
+    toIntegral(){
+      wepy.navigateTo({ url: `/pages/packageIntegral/memberIntegralSignIn/index` });
+    },
+    toTaleDetailA(taleId) {
+      wepy.navigateTo({ url: `/pages/packageRecom/taleDetail/index?taleId=${taleId}` });
+    },
+    loadMore() { // 加载更多
+      if (!this.hasMore) return
+      this.pageParams.page += 1
+      this.apiTaleFindPageFA(this.apiTaleFindPageFA.bind(this))
+    },
+    goMember(){
+      wepy.navigateTo({ url: `/pages/packageIntegral/memberRank/index` });
+    },
+  };
+  apiTaleFindPageFA(fun) {
+    apiTaleFindPageF({
+      page: this.pageParams.page,
+      limit: 100
+    }, fun).then((result) => {
+      let { rows, last } = result
+      this.hasMore = !last
+      this.taleArr = []
+      this.taleArr = this.taleArr.concat(rows)
+      this.$apply()
+    }).catch(() => { });
+  }
+  GetUserInfoF(){ //获取用户积分信息
+    apiGetUserInfoF().then(msg => {
+      console.log(msg)
+      this.integralInfo = msg
+      this.apiTaleFindPageFA(this.apiTaleFindPageFA.bind(this))  //我们的故事
+      this.$apply();
+      /** usertype 用户类型 0：普通用户 1：普通合伙人 2：高级合伙人 3：代购合伙人 */
+    }).catch(() => {})
+  };
+  apiGetuserlevalInfoFA(fun) { //获取用户会员等级信息userleval
+    let _self = this
+    _self.Info = {}
+    apiInfoF(fun).then(msg => {
+      _self.userId = msg.userId
+      _self.Info = msg
+      _self.$apply();
+    }).catch(() => { });
+  }
+  apiGetRoomList(fun) { //获取直播房间列表
+    apiGetRoomListF(fun).then(msg => {
+      // this.roomList = msg
+      let rowData = msg.slice(0,4)
+      rowData.forEach((item,index) => {
+        item.end_time = dateFormat(item.end_time*1000,'yyyy/MM/dd hh:mm:ss')
+        item.start_time = dateFormat(item.start_time*1000,'yyyy/MM/dd hh:mm:ss')
+      })
+      console.log(rowData)
+      this.roomList = rowData
+      this.$apply();
+    }).catch(() => { });
+  }
+  async onLoad() {
+    this.GetUserInfoF(this.GetUserInfoF.bind(this)) //查询积分信息
+    this.apiGetuserlevalInfoFA(this.apiGetuserlevalInfoFA.bind(this)) //查询用户信息 会员等级 userid userleavel
+  }
+  onShow() {
+    this.apiGetRoomList(this.apiGetRoomList.bind(this)) //查询直播房间列表
+    this.GetUserInfoF(this.GetUserInfoF.bind(this))
+    this.apiGetuserlevalInfoFA(this.apiGetuserlevalInfoFA.bind(this))
+  }
+  onPullDownRefresh(){
+    this.apiGetRoomList(this.apiGetRoomList.bind(this))
+    this.GetUserInfoF(this.GetUserInfoF.bind(this))
+    this.apiGetuserlevalInfoFA(this.apiGetuserlevalInfoFA.bind(this))
+    setTimeout(() => {
+      wx.stopPullDownRefresh()
+      miniPro.showToast("刷新成功")
+    },1500)
+  };
+}
+</script>
+<style lang="scss">
+@import './index.scss';
+</style>

@@ -1,0 +1,77 @@
+<template>
+  <view class='member-detail-ctner'>
+      <scroll-view scroll-y="true" style="height: 100%;" @scrolltolower="loadMore">
+        <view class="member-item" wx:for="{{pageList}}" wx:key="index">
+          <view class="member-item-word-one">
+            <text>{{item.nickName}}</text>
+            <text>{{item.typeText}}</text>
+          </view>
+          <view class="member-item-word">
+            <text></text>
+            <text>{{item.createTime}}</text>
+          </view>
+        </view>
+
+        <view class="list-no-data" wx:if="{{pageList.length == 0}}">暂无数据</view>
+      </scroll-view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import {apiPartnerFindSpectatorsF} from '../../../services/mine/index'
+export default class MemberDetail extends wepy.page {
+  config = {
+    navigationBarTitleText: '用户明细'
+  };
+  data = {
+    pageParams: {
+      page: 0,
+      limit: 40,
+      hasMore: false
+    },
+    pageList: []
+  };
+  methods = {
+    loadMore() { // 加载更多
+      if (!this.pageParams.hasMore) return
+      this.pageParams.page += 1
+      this.apiPartnerFindSpectatorsFA(this.apiPartnerFindSpectatorsFA.bind(this))
+    }
+  }
+
+  apiPartnerFindSpectatorsFA(fun) {
+    apiPartnerFindSpectatorsF({
+      page: this.pageParams.page,
+      limit: this.pageParams.limit
+    }, fun).then((result) => {
+      let { rows, last, pageNumber } = result
+      rows.forEach(val => {
+        let { userLevel, userType } = val
+        let _userLevel = ['普通用户', '月卡用户', '年卡用户'][Number(userLevel)]
+        let _userType = ['普通用户', '分享者', '合伙人', '真成掮客'][Number(userType)]
+        if (_userLevel == '普通用户' && _userType == '普通用户') {
+          val.typeText = '普通用户'
+        } else if (_userLevel == '普通用户' && _userType != '普通用户') {
+          val.typeText = _userType
+        } else if (_userLevel != '普通用户' && _userType == '普通用户') {
+          val.typeText = _userLevel
+        } else {
+          val.typeText = `${_userLevel}|${_userType}`
+        }
+      });
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch(() => { });
+  }
+
+  onLoad() {
+    this.apiPartnerFindSpectatorsFA(this.apiPartnerFindSpectatorsFA.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

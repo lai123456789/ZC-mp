@@ -1,0 +1,268 @@
+
+<template>
+  <view class="cart-ctner container-same">
+    <wxs src="../../../utils/filter.wxs" module="tools"></wxs>
+      <view class="cart-con-outer">
+        <view class="cart-goods-outer">
+          <view class="T1">
+
+            <view class="T1-one-div">
+              <view class="">
+                <image src='{{goodsInfo.goodsIco}}'></image>
+                <view class="center-text">
+                  <view>{{goodsInfo.goodsName}}</view>
+                  <view>{{goodsInfo.goodsSpecification}}</view>
+                  <view>
+                    <text>￥{{goodsInfo.groupPrice}}</text>
+                    <text>￥{{goodsInfo.originalPrice}}</text>
+                  </view>
+                </view>
+              </view>
+              <view>
+                <view>
+                  <image src="../../../images/tuoyuan.png"></image>
+                  <text>{{goodsInfo.groupNum}}人团</text>
+                </view>
+              </view>
+            </view>
+            <view class="T1-two-div">
+              <view wx:for="{{groupList}}" wx:key="index" wx:if="{{idx <= 9 }}"  wx:for-index="idx" class="group-member">
+                <image src='{{item.headImage}}'  ></image>
+                <view class="nameText" wx:if="{{groupList.length <= 4}}">{{item.nickName}}</view>
+                <view wx:else>
+                  <view wx:if="{{idx == 0}}">团长</view>
+                </view>
+              </view>
+<!--              <view wx:for="{{groupList}}" wx:key="index">-->
+<!--                <image src='{{item.headImage}}'></image>-->
+<!--                <view>{{item.nickName}}</view>-->
+<!--              </view>-->
+              <view wx:if="{{surperson > 0}}">
+                <image src='../../../images/add1.png'></image>
+                <view class="else">还差{{surperson}}人</view>
+              </view>
+            </view>
+            <view></view>
+          </view>
+          <view class="T2">
+            <view wx:if="{{isJoin && success}}">
+              <text>拼团已成功，请等待发货</text>
+            </view>
+            <view  wx:if="{{isJoin && !success}}">
+              <button open-type='share' class="share-button">
+                <text>邀请好友参团</text>
+              </button>
+            </view>
+            <view wx:if="{{!isJoin && success}}">
+                <text>拼团已结束</text>
+            </view>
+            <view wx:if="{{!isJoin && !success}}" @tap="goConfirm"> <!-- -->
+              一键参团
+            </view>
+            <view>
+              <image src='../../../images/zhuyi.png'></image>
+              <text>如何拼团</text>
+            </view>
+            <view>1.开团或者参加别人的团</view>
+            <image src='../../../images/jianBoth.png'></image>
+            <view>2.在规定的时间,邀请好友参团</view>
+            <image src='../../../images/jianBoth.png'></image>
+            <view>3.达到拼团人数,系统开始发货</view>
+          </view>
+        </view>
+
+
+        <view class="cart-like" wx:if="{{pageLikeList.length > 0}}">
+          <view class="cart-like-title">·猜您喜欢·</view>
+          <view class='cat-container'>
+            <view @tap="toGoodsDetail({{item}})" class="cat-like-item" wx:for="{{pageLikeList}}" wx:key="index">
+              <image src="{{item.goodsIco}}"></image>
+              <view class="cart-l-des">{{item.goodsShortName}}</view>
+              <view class="cart-l-description">{{item.goodsDescription}}</view>
+              <view class="cart-l-price">￥{{item.price}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import { apiGoodsLikePageF,apiGroupInfoF,apiPurchaseShareInfoF } from '../../../services/index/index'
+  import miniPro from '@/utils/wepy-pro.js';
+  import jsonFormat from '../../../utils/jsonUtil';
+  import { apiMyOrderInfoF } from '../../../services/mine';
+  import { apiInfoF } from '../../../services/cart';
+
+  export default class OnekeyDelegation extends wepy.page {
+    config = {
+      navigationBarTitleText: '一键参团'
+    };
+    components = {
+    };
+    mixins = [];
+    data = {
+      isUserId:'',
+      isSk:'',
+      userId:"",//
+      sk:"",
+      goodsInfo:{},
+      pageParamsLike: {
+        page: 0,
+        limit: 100
+      },
+      pageLikeList: [],
+      goodsIcon: '',
+      goodsName: '',
+      groupPrice: '',
+      originalPrice: '',
+      goodsSpecification: '',
+      groupNumber: '',
+      surperson:0,//还差几人
+      groupList: [],
+      groupLLList: [
+      ],
+      groupId: null,
+      shareInfo: {},
+      isJoin: false,
+      success: false,
+      option: {}
+    };
+
+    methods = {
+      goConfirm(){
+        let shareUserId,shareKey
+        if(this.isUserId){
+          shareUserId = this.isUserId
+        }else{
+          shareUserId = this.userId
+        }
+        if(this.isSk){
+          shareKey = this.isSk
+        }else{
+          shareKey = this.sk
+        }
+        let param = {
+          shareUserId:shareUserId,
+          shareKey:shareKey,
+          groupId: this.groupId,
+          createFlag: '0',
+        };
+        let query = jsonFormat.kv(param);
+        wepy.navigateTo({ url: `/pages/groupBuy/ConfirmOrder/index?` + query})
+      },
+      toGoodsDetail(item) {
+        miniPro.toGoodsDetail(item.id, item.groupPurchase)
+      }
+    };
+    apiGoodsLikePageFA(fun) {
+      apiGoodsLikePageF({
+        page: this.pageParamsLike.page,
+        limit: this.pageParamsLike.limit
+      }, fun).then((result) => {
+        let { rows } = result
+        this.pageLikeList = rows
+        this.$apply();
+      }).catch(() => { });
+    };
+    getGroupInfo(fun){
+      let t = this
+      // let param = {};
+      // if (this.groupId) {
+      //   param['groupId'] = this.groupId;
+      // }
+      let id
+      if (this.groupId){
+        id = this.groupId || 0
+      }
+      apiGroupInfoF(id, fun).then((result) => {
+        t.goodsInfo = result
+          t.surperson = result.groupNum - result.currentNum
+          t.$apply();
+          let groups = [];
+          if(result.members.length > 0){
+            for(let x in result.members){
+              groups[x] = result.members[x];
+            }
+          }
+          t.groupList = groups;
+        t.isJoin = result.join;
+        t.success = result.success;
+        // t.groupId = result.groupId;
+        t.$apply();
+          this.getPurchaseShareInfo(this.getPurchaseShareInfo.bind(this));
+        this.$apply()
+      }).catch((err) => {
+        console.log("err")
+        console.log(err)
+      });
+
+    };
+    getPurchaseShareInfo(fun){
+      let groupId = this.groupId
+      let param = {
+        groupId: groupId
+      };
+      apiPurchaseShareInfoF(param,fun).then((result)=> {
+        // let A = result.shareParam; //shareId=1234
+        // let shareId = A.split("="); //分割成数组
+        this.shareInfo.title = result.shareTitle;
+        this.shareInfo.imageUrl = result.shareImageUrl;
+        this.shareInfo.shareParam = groupId;
+        this.$apply();
+      }).catch(()=>{})
+    };
+    onShareTimeline(res){ //分享到朋友圈
+      let _userId = this.userId
+      let _sk = this.sk
+      let _groupId = this.shareInfo.shareParam
+      let params = `groupId=${_groupId}&si=${_userId}&sk=${_sk}`
+      return {
+        title: this.shareInfo.title,
+        query: params,
+        imageUrl: this.shareInfo.imageUrl
+      };
+    }
+    onShareAppMessage(res) {
+      let _userId = this.userId
+      let _sk = this.sk
+      let _groupId = this.shareInfo.shareParam
+      return {
+        title: this.shareInfo.title,
+        path: `/pages/groupBuy/OnekeyDelegation/index?groupId=${_groupId}&si=${_userId}&sk=${_sk}`,
+        imageUrl: this.shareInfo.imageUrl
+      }
+    };
+    watch = {
+    }
+    events = {
+    };
+    apiGetInfoFA(fun) { //获取用户信息 手机号
+      let _self = this
+      apiInfoF(fun).then(msg => {
+        _self.userId = msg.userId
+        _self.sk = Math.random().toString(21).substr(4);
+        _self.$apply();
+      }).catch(() => { });
+    }
+    onLoad(option) {
+      if (option.groupId) {
+        this.groupId = option.groupId;
+      }
+      if (option.si || option.sk){//分享者id
+        this.isUserId = option.si
+        this.isSk = option.sk
+        wepy.$instance.globalData.qrSk = option.sk
+        wepy.$instance.globalData.qrSi = option.si
+      }
+      this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //
+      this.getGroupInfo(this.getGroupInfo.bind(this));
+      this.apiGoodsLikePageFA(this.apiGoodsLikePageFA.bind(this))
+    }
+  }
+</script>
+<style lang="scss">
+  @import './index.scss';
+</style>

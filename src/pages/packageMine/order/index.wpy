@@ -1,0 +1,453 @@
+<template>
+  <view class='order-ctner'>
+      <view class="order-top-outer">
+        <view class="ot-same ot-a {{currentIndex == index ? 'active':''}}"
+              wx:for='{{OrderTitleContent}}' wx:key="index" @tap="changeCurA({{index}})">
+          {{item.typeDesc}}
+          <view class="A" wx:if="{{item.number > 0 }}">
+            <view>{{item.number}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="order-top-con">
+        <swiper
+          indicator-dots="{{indicatorDots}}"
+          autoplay="{{autoplay}}"
+          duration="{{duration}}"
+          current="{{currentIndex}}"
+          bindchange="intervalChange"
+        >
+          <block wx:for="{{OrderTitleContent}}"  wx:for-item="item" wx:key="i">
+              <swiper-item>
+                <scroll-view scroll-y="true" style="height: 100%;" @scrolltolower="loadMore" >
+                  <view class="swiper-div-same" wx:if="{{pageList.length > 0}}">
+                    <repeat for="{{pageList}}" key='subIndex' index="subIndex" item="subItem">
+                      <view class="order-com" @tap="toOrderInfo({{subItem}})">
+                        <OrderCom :item="subItem" :swiperIndex="currentIndex"></OrderCom>
+                      </view>
+                    </repeat>
+                  </view>
+                  <NoTip wx:else></NoTip>
+                </scroll-view>
+              </swiper-item>
+            </block>
+        </swiper>
+      </view>
+    <modal wx:if="{{showModal}}">
+      <view class="modal-content" slot="cancelOrder_reason">
+        <view class="content-exchang">
+          <view class="content">
+            <view class="reason" @tap='toTuiA'>
+              <text>申请原因</text>
+              <view class="picker-outer">
+                <picker @change="bindPickerChange" value="{{reasonIndex}}" range="{{reasonArray}}">
+                  <view class="picker">
+                    {{reasonArray[reasonIndex]}} >
+                  </view>
+                </picker>
+              </view>
+            </view>
+            <view class="desc">
+              <text>描述 </text>
+              <input type="text" v-model="paramCancel.desc" @input="changVal">
+            </view>
+          </view>
+          <view class="btn-bottom">
+            <button @tap="cancelHiddModal()">取消</button>
+            <button @tap="sureCancel()">
+              确定
+            </button>
+          </view>
+        </view>
+      </view>
+    </modal>
+
+  </view>
+  <!--custom Modal      查看物流弹框  -->
+  <view class="modal-mask-logistic" bindtap="hideModal" wx:if="{{LogisticsshowModal}}">
+  </view>
+  <view wx:if="{{LogisticsshowModal}}">
+    <view class="modal-content-logistic">
+      <view class="logis-info-outer">
+        <view wx:if="{{LogisticsList.length > 0}}" class="logis-item {{index == 0 ? 'active' : ''}}" wx:for='{{LogisticsList}}' wx:key="index">
+          <view class="point-outer">
+            <view class="point">
+              <view class="point-inner"></view>
+            </view>
+          </view>
+          <view class="logis-a">
+            <text>{{item.status}}</text>
+          </view>
+          <view class="logis-b">{{item.context}}</view>
+          <view class="logis-c">{{item.time}}</view>
+        </view>
+        <view wx:if="{{LogisticsList.length == 0}}" class="logis-item">
+          <view class="point-outer">
+            <view class="point">
+              <view class="point-inner"></view>
+            </view>
+          </view>
+          <view class="logis-b">暂无物流相关信息</view>
+        </view>
+      </view>
+    </view>
+
+
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import '../../../common/js/authProcess.js'
+import NoTip from '@/components/OrderNoDataTip/index'
+import OrderCom from '@/components/OrderGoodCom/index'
+import modal from '@/components/modal/index'
+import miniPro from '@/utils/wepy-pro.js'
+import UrlNavigate  from '../../../utils/wepyNavigate';
+import {
+  apiOrderFindPageF,
+  apitoBeDeliveredF,
+  apipendingPaymentF,
+  apitoReceivedF,
+  apitoCommentF,
+
+  apiCancelOrderF, //   取消订单
+  apiConfirmOrderF, //  确认收货
+  apiGetHearderF, //头部标题以及订单提醒
+  apiRemindDeliverGoodsF //提醒商家发货
+} from '../../../services/mine/index';
+export default class Order extends wepy.page {
+  config = {
+    navigationBarTitleText: '我的订单'
+  };
+  components = {
+    NoTip: NoTip,
+    OrderCom: OrderCom,
+    modal:modal
+  };
+  data = {
+    LogisticsList:[],
+    LogisticsshowModal:false,
+    showModal:false,
+    OrderTitleContent:[
+      {typeDesc:"全部",number:""},
+      {typeDesc:"待付款",number:""},
+      {typeDesc:"待发货",number:""},
+      {typeDesc:"待收货",number:""},
+      {typeDesc:"待评价",number:""},
+    ],
+    currentIndex: 0,
+    indicatorDots: false,
+    autoplay: false,
+    duration: 100,
+    heardContent:[],
+    topArr: [],
+    statusObj: [], // 状态（-1：全部订单 0：待支付 4：待收货 5：已完成 3：已取消）
+    pageList: [],
+    paramCancel:{
+      orderChildId: "",
+      reason: "现在不想购买",//默认填这个 选择了再动态改变值
+      desc: ""
+    },
+    orderActionId: '',
+    confirmOrderId: '',
+    orderChildId:'',
+    btnClickCurrenIndex: -1,
+    pageParams: {
+      page: 0,
+      offset:0,
+      limit: 10,
+      status: 0,
+      hasMore:false
+    },
+    currentItem: '',
+    reasonArray: ['现在不想购买', '信息填写错误，重新拍', '卖家缺货', '物流时间太长', '其他原因'],
+    reasonIndex: 0,
+  };
+  events = {
+    'operate':(key,item) => {
+      if(key == 2){ //取消订单
+        this.showModal = true
+        this.paramCancel.orderChildId = item.id
+      }
+      if(key == 7){ //订单取消中（取消了订单 在审核中）
+        miniPro.showToast("订单取消中，无法操作！")
+      }
+      if(key == 3){ //查看物流
+        this.LogisticsshowModal = true
+        // let arr = [
+        //   {context: "【代收点】您的快件已签收，签收人在【石街新村中通分部(西乡固戍石街新村6巷15号)】领取。",
+        //     ftime: "2020-04-22 20:22:02",
+        //     status: "签收",
+        //     time: "2020-04-22 20:22:02",
+        //   },
+        //   {context: "【代收点】您的快件已签收，签收人在【石街新村中通分部(西乡固戍石街新村6巷15号)】领取。",
+        //     ftime: "2020-04-22 20:22:02",
+        //     status: "签收",
+        //     time: "2020-04-22 20:22:02"}
+        // ]
+        this.LogisticsList = item.dynamics
+      }
+      if(key == 5){ //确认收货
+        let t = this
+        this.confirmOrderId = item.id
+        miniPro.showConfirm({
+          title: '提示',
+          content: '是否确定收货？',
+          callback(flag) {
+            if (!flag) return
+            t.apiConfirmOrderFA(t.apiConfirmOrderFA.bind(t));
+          }
+        })
+
+      }
+      if(key == 4){ //去评价
+          UrlNavigate('/pages/packageMine/orderComment/index',
+            {orderChildId:item.orderChildId,orderDetailId:item.id});
+        // wepy.redirectTo({ url: `/pages/packageMine/orderComment/index?orderChildId=${item.orderChildId}` });
+      }
+      // if (key == 6) {  //确认收货
+      //   this.confirmOrderId = item.orderChildId
+      //   this.apiConfirmOrderFA(this.apiConfirmOrderFA.bind(this))
+      // }else if(key == 4){   //查看物流
+      //   UrlNavigate('/pages/packageMine/logisticsInfo/index',{id:item.orderChildId});
+      // }else if(key == 1){ //立即支付
+      //   UrlNavigate('/pages/packageMine/sureOrder/index',{orderId:item.orderMasterId,prepareType:3});
+      // }else if(key == 2){ //评价
+      //   wepy.redirectTo({ url: `/pages/packageMine/orderComment/index?orderChildId=${item.orderChildId}` });
+      // }else if(key == 5){ //提醒商家发货
+      //   this.orderChildId = item.orderChildId
+      //   this.apiRemindDeliverGoodsFA(this.apiRemindDeliverGoodsFA.bind(this))
+      // }else if(key == 3){  //再次购买
+      //   miniPro.toGoodsDetail(goodsId, 0);
+      // }
+    },
+    'showModal': (value) => {
+      console.log(value)
+      this.showModal = value
+      this.$apply()
+    },
+  }
+  methods = {
+    hideModal() {
+      this.LogisticsshowModal = false
+      this.LogisticsList = []
+    },
+    bindPickerChange(e) {
+      let _value = e.detail.value
+      this.reasonIndex = _value
+      this.paramCancel.reason = this.reasonArray[_value]
+    },
+    changVal(e){
+      this.paramCancel.desc = e.detail.value
+    },
+    cancelHiddModal(){
+      this.showModal = false
+    },
+    sureCancel(){
+      console.log(this.paramCancel)
+      this.apiCancelOrderFA(this.apiCancelOrderFA.bind(this))
+    },
+    toFilterA() {
+      wepy.navigateTo({ url: '/pages/packageIndex/filter/index' });
+    },
+    intervalChange(e) { //滑动切
+      console.log("intervalChange")
+      console.log(e)
+      this.currentIndex = e.detail.current || 0
+      this.pageParams.page = 0
+      this.pageParams.offset = 0
+      this.pageParams.limit = 10
+      this.pageParams.hasMore = false
+      this.pageList = []
+      this.apiGetOrderData(this.apiGetOrderData.bind(this))
+    },
+    changeCurA(i) { //点击切换
+      this.currentIndex = i;
+      console.log(i)
+    },
+    loadMore() { // 加载更多
+      if (!this.pageParams.hasMore) return
+      let offset = this.pageParams.offset;
+      if(offset == 0){
+        offset = this.pageParams.limit;
+      }else{
+        offset = offset + this.pageParams.limit;
+      }
+      this.pageParams.offset = offset;
+      this.apiGetOrderData(this.apiGetOrderData.bind(this))
+    },
+    toOrderInfo (e){
+      if(this.currentIndex == 0){
+        wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?id=${e.id}` });
+      }else if(this.currentIndex == 2 && e.parentId){ //待发货
+        // wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?orderMasterId=${e.orderMasterId}` });
+        wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?id=${e.parentId}` });
+      }else if(this.currentIndex == 1 && e.id){  //待支付
+        wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?id=${e.id}` });
+      }else if(this.currentIndex == 4 && e.orderChildId){  //待评价
+        wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?id=${e.orderMasterId}` });
+      }else{  //待收货
+        wepy.navigateTo({ url: `/pages/packageMine/OrderInfo/index?orderChildId=${e.sourceId}` });
+      }
+    }
+  };
+  apiGetHearderFA(fun) { //获取订单数量统计num
+    let t = this
+    apiGetHearderF(fun).then((result) => {
+      let allNumber = result.toPay + result.toShip + result.toSigned + result.toEvaluation
+      t.OrderTitleContent[0].number = ""  //全部
+      t.OrderTitleContent[1].number = result.toPay  //待付款
+      t.OrderTitleContent[2].number = result.toShip //待发货
+      t.OrderTitleContent[3].number = result.toSigned //待收货
+      t.OrderTitleContent[4].number = result.toEvaluation //待评价
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  apiGetOrderData(fun){
+    let currentIndex = this.currentIndex
+    console.log(currentIndex)
+    if(currentIndex == 0){ //全部订单列表
+      this.apiOrderFindPageFA(this.apiOrderFindPageFA.bind(this))
+    }else if(currentIndex == 1){ //待付款列表
+      this.pendingPayment(this.pendingPayment.bind(this))
+    }else if(currentIndex == 2){ //待发货列表
+      this.toBeDelivered(this.toBeDelivered.bind(this))
+    }else if(currentIndex == 3){ //待收货列表
+      this.toReceived(this.toReceived.bind(this))
+    }else if(currentIndex == 4){ //待评价列表
+      this.toComment(this.toComment.bind(this))
+    }
+  }
+  apiOrderFindPageFA(fun) { //全部
+    apiOrderFindPageF({
+      offset: this.pageParams.offset,
+      limit:  this.pageParams.limit,
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows, last, pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch((err) => {
+    });
+  }
+  toBeDelivered(fun) { //待发货
+    apitoBeDeliveredF({
+      offset: this.pageParams.offset,
+      limit:  this.pageParams.limit,
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows, last, pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch((err) => {
+    });
+  }
+  pendingPayment(fun) { //待付款
+    apipendingPaymentF({
+      offset: this.pageParams.offset,
+      limit:  this.pageParams.limit,
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows, last, pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch((err) => {
+    });
+  }
+  toReceived(fun) { //待收货
+    apitoReceivedF({
+      offset: this.pageParams.offset,
+      limit:  this.pageParams.limit,
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows, last, pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch((err) => {
+    });
+  }
+  toComment(fun) { //待评价
+    apitoCommentF({
+      offset: this.pageParams.offset,
+      limit:  this.pageParams.limit,
+    }, fun).then((result) => {
+      console.log(result)
+      let { rows, last, pageNumber } = result
+      this.pageParams.page = pageNumber
+      this.pageParams.hasMore = !last
+      this.pageList = this.pageList.concat(rows)
+      this.$apply()
+    }).catch((err) => {
+    });
+  }
+  apiRemindDeliverGoodsFA(fun) {  //提醒商家发货
+    let orderChildId = this.orderChildId
+    let t = this
+    apiRemindDeliverGoodsF(orderChildId, fun).then((result) => {
+      miniPro.showToast('提醒商家发货成功')
+      setTimeout(() => {
+        t.pageList = [];
+        this.apiGetHearderFA(this.apiGetHearderFA.bind(this))
+      }, 1000);
+    }).catch((err) => {
+    });
+  }
+  apiCancelOrderFA(fun) {
+    apiCancelOrderF(this.paramCancel, fun).then((result) => {
+      this.showModal = false
+      miniPro.showToast('取消订单提交申请成功，请等候审核结果！')
+      setTimeout(() => {
+        this.pageList = []
+        this.apiGetOrderData(this.apiGetOrderData.bind(this))
+        this.apiGetHearderFA(this.apiGetHearderFA.bind(this))
+      },1500)
+    }).catch((err) => {
+    });
+  }
+
+  apiConfirmOrderFA(fun) {  //确认收货
+    let  t = this
+    apiConfirmOrderF(this.confirmOrderId, fun).then((result) => {
+      miniPro.showToast('确认收货成功')
+      setTimeout(() => {
+        this.pageList = []
+        this.apiGetOrderData(this.apiGetOrderData.bind(this))
+        this.apiGetHearderFA(this.apiGetHearderFA.bind(this))
+        this.$apply()
+      }, 1000)
+    }).catch((err) => {
+
+    });
+  }
+  onLoad(option) {
+    this.currentIndex = option.current
+    this.apiGetHearderFA(this.apiGetHearderFA.bind(this))
+    if (option.current == 0){ //我的页面 点击全部订单过来的 进入页面先调用这个获取全部订单列表接口
+      this.apiOrderFindPageFA(this.apiOrderFindPageFA.bind(this)) //全部订单
+    }
+  }
+  // onPullDownRefresh(){ //下拉刷新
+  //   this.apiGetHearderFA(this.apiGetHearderFA.bind(this))
+  //   this.apiGetOrderData(this.apiGetOrderData.bind(this))
+  //   setTimeout(() => {
+  //     wx.stopPullDownRefresh()
+  //     miniPro.showToast("刷新成功")
+  //   },1500)
+  // };
+
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>
+

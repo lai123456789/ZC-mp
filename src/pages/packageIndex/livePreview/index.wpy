@@ -1,0 +1,103 @@
+<template>
+  <view class="order-no-data-ctner">
+<!--        <preheatingModule>-->
+<!--          <view>  &lt;!&ndash; 直播预热图模块 后面有新模块可新增slot插槽插入对应的组件内容布局 根据需要显示 &ndash;&gt;-->
+<!--            <image src='../../../../images/zhibo.jpg'></image>-->
+<!--          </view>-->
+<!--        </preheatingModule>-->
+    <view class="center-room">
+      <view wx:for="{{roomList}}" wx:key="roomid" class="room-item">
+        <view @tap="goRoom({{item}})" class="room">
+          <!--            /** 101-直播中；102-未开始/直播倒计时；103-已结束/查看回放；104-禁播；105-暂停中；106-异常；107-已过期 */-->
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 101 || item.live_status == 106}}">
+            <text>直播中</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 102}}">
+            <text>直播倒计时</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 103}}">
+            <text>查看回放</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 104}}">
+            <text>已禁播</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 105}}">
+            <text>暂停中</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <view class="icx-btn-colorBg-whiteText" wx:if="{{item.live_status == 107}}">
+            <text>已过期</text>
+            <image src="../../../images/livejian.png"></image>
+          </view>
+          <image src="{{item.share_img}}"></image>
+          <view class="bottom">
+            {{item.name}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+  </view>
+</template>
+<script>
+import wepy from 'wepy';
+import { apiGetRoomListF } from '../../../services/mine'
+import preheatingModule from '@/components/preheatingModule/index'
+import dateFormat from '../../../utils/base/dateFormat';
+import { apiInfoF } from '../../../services/cart';
+export default class livePreview extends wepy.page {
+  components = {
+    // preheatingModule: preheatingModule
+  };
+  data = {
+    userId:"",
+    roomList:[]
+  };
+  apiGetRoomList(fun) { //获取直播房间列表
+    apiGetRoomListF(fun).then(msg => {
+      this.roomList = msg
+      this.$apply();
+    }).catch(() => { });
+  }
+  methods = {
+    goRoom(e){
+      let userId = this.userId
+      let sk = Math.random().toString(21).substr(4);
+      let customParams = encodeURIComponent(JSON.stringify({ si:userId,sk:sk,room_id:e.roomid }))
+      wepy.navigateTo({
+        url: `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.roomid}&custom_params=${customParams}`
+      })
+    }
+  };
+  apiGetuserlevalInfoFA(fun) { //获取用户会员等级信息userleval
+    let _self = this
+    apiInfoF(fun).then(msg => {
+      _self.userId = msg.userId
+      _self.$apply();
+    }).catch(() => { });
+  }
+  onLoad(){
+    this.apiGetuserlevalInfoFA(this.apiGetuserlevalInfoFA.bind(this)) //查询用户信息
+    this.apiGetRoomList(this.apiGetRoomList.bind(this)) //查询直播房间列表
+  }
+  onShow() {
+
+  }
+  onPullDownRefresh(){
+    this.apiGetRoomList(this.apiGetRoomList.bind(this)) //查询直播房间列表
+    setTimeout(() => {
+      wx.stopPullDownRefresh()
+      miniPro.showToast("刷新成功")
+    },1500)
+  };
+}
+</script>
+
+<style lang="scss" scoped>
+@import './index.scss';
+
+</style>

@@ -1,0 +1,534 @@
+
+<template>
+  <view class="mine-ctner">
+    <view class="m-logo">
+      <image class="m-log-bg" src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mineBg.png'></image>
+      <view class="m-logo-con">
+        <view class="m-logo-1"><open-data type="userAvatarUrl"></open-data></view>
+        <view class="m-logo-2">
+          <view>
+            <open-data type="userNickName"></open-data>
+          </view>
+          <view>
+            <text>邀请码：</text>
+            <text>{{invitId}}</text>
+          </view>
+        </view>
+        <view class="m-logo-3">
+          <view class="b1" wx:if="{{UserPhone || UserPhone !== ''}}">  <!---->
+            <button class="icx-btn-whiteBg-colorText  share1" @tap="invite">邀请好友</button>
+          </view>
+          <view  class="b2" wx:else> <!--  后面打开-->
+            <button class="icx-btn-whiteBg-colorText  share2"
+                    open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+              生成邀请链接
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="m-hy">
+      <view class="hy-top">
+        <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mineTopbg.png'></image>
+        <view  class="hy-btn" catchtap="withrawRecord">
+          <view>提现记录</view>
+          <view><image src='../../images/remberlogo.png'></image></view>
+        </view>
+        <view class="hy-content">
+          <view class="hy1">
+            <view class="hy-t1" @tap="toAccountRecord">
+              <view>账户余额（元）</view>
+              <view class="h-money">
+                <view class="h-1">
+                  <view>{{accountBalance}}</view>
+                  <view>
+                    <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/money-line.png'></image>
+                  </view>
+                </view>
+                <button catchtap="withdrawal" class="icx-btn-whiteBg-colorText">提现</button>
+              </view>
+            </view>
+            <view class="hy-t3" @tap="indexRecord">
+              <view class="hy-t3-content">
+                <view><image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/nowday.png'></image></view>
+                <view>今日预估</view>
+                <view>{{todayEstimatedAmount}}</view>
+              </view>
+              <view class="hy-t3-content">
+                <view><image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/nowMonth.png'></image></view>
+                <view>本月预估</view>
+                <view>{{monthEstimatedAmount}}</view>
+              </view>
+              <view class="hy-t3-content">
+                <view><image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/al.png'></image></view>
+                <view>累计预估</view>
+                <view>{{allEstimatedAmount}}</view>
+              </view>
+            </view>
+          </view>
+          <view class="hy2" @tap="indexRecord">
+            <view>
+              <text>点击查看奖励明细</text>
+              <image src="../../images/recordi.png"></image>
+            </view>
+            <view>
+              <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/money-line.png"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="hy-inner" @tap='membersA'>
+        <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/discount_bg1.png'></image>
+        <text wx:if="{{membersText}}">{{membersText}} | 海量商品，多种优惠</text>
+        <view wx:if="{{isVipMonthCard}}" class="hy-btn-member">续费会员有效期 》</view>
+        <view wx:if="{{isMembers}}" class="hy-word">海量商品，多种优惠</view>
+        <view wx:else class="hy-word">立即加入，立享折扣</view>
+        <view wx:if="{{!isMembers}}" class="hy-btn">立即加入</view>
+        <view  catchtap="watchPrivilege" class="hy-btn-right">查看会员特权</view>
+      </view>
+      <view class="hy-invai-inner" @tap='memberInfo'>
+        <view>我邀请的会员</view>
+        <view class="hy-m1">
+          <view class="m1-content">
+            <view></view>
+            <view>{{inviteRecommended}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+<!--    <view @tap="jumpH5A" style="width: 100%;height: 200rpx;background: red">按钮</view>-->
+    <view class="m-order-outer">
+      <view class="m-order-innder">
+        <view class="m-order-title m-order-title-order" @tap="toOrderTapA(0)">
+          <text>我的订单</text>
+          <text>查看全部订单</text>
+          <image src='../../images/unfold.png'></image>
+        </view>
+        <view class="m-order-item">
+          <view class="order_a" @tap="toOrderTapA(1)">
+            <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mine1.png'></image>
+            <view class="A" wx:if="{{statistics.toPay > 0}}">{{statistics.toPay}}</view>
+            <view>待付款</view>
+          </view>
+          <view class="order_b" @tap="toOrderTapA(2)">
+            <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mine2.png'></image>
+            <view class="A" wx:if="{{statistics.toShip > 0}}">{{statistics.toShip}}</view>
+            <view>待发货</view>
+          </view>
+
+          <view class="order_c" @tap="toOrderTapA(3)">
+            <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mine3.png'></image>
+            <view class="A" wx:if="{{statistics.toSigned > 0}}">{{statistics.toSigned}}</view>
+            <view>待收货</view>
+          </view>
+
+          <view class="order_d" @tap="toOrderTapA(4)">
+            <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mine4.png'></image>
+            <view class="A" wx:if="{{statistics.toEvaluation > 0}}">{{statistics.toEvaluation}}</view>
+            <view>待评价</view>
+          </view>
+          <view class="order_e" @tap.stop="toAfterSales()">
+            <image src='https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/mine5.png'></image>
+            <view>售后</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="m-service-outer">
+      <view class="m-service-title">我的服务</view>
+      <view class="m-service-item">
+        <!-- <view class="service-a" @tap="toBulkOrderA">
+            <image src='../../images/abulk.png'></image>
+            <view>团购订单</view>
+        </view> -->
+
+        <view class="service-e" @tap="toMoreA">
+            <image src='../../images/similar.png'></image>
+            <view>了解更多</view>
+        </view>
+
+        <view class="service-b" @tap="toAddressListA">
+            <image src='../../images/location.png'></image>
+            <view>我的地址</view>
+        </view>
+
+        <view class="service-c" @tap="toCollectionA">
+            <image src='../../images/favor.png'></image>
+            <view>我的收藏</view>
+        </view>
+
+        <view class="service-d" @tap="toFootprintA">
+            <image src='../../images/footprint.png'></image>
+            <view>我的足迹</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- 分享弹框  -->
+  <view class="share-outer" wx:if="{{shareObj.isShowSharePop}}">
+    <view class="share-inner">
+      <view class="share-img-con">
+        <image src="{{shareObj.goodShareUrl}}"></image>
+      </view>
+      <view class="share-btn-wrap">
+        <view class="sure-btns">
+          <view class="btn">
+            <button class="icx-clear-after-border" open-type="share">
+              <image src='../../images/we_icon.png'></image>
+              <view>微信</view>
+            </button>
+          </view>
+          <view class="btn" @tap='saveA'>
+            <image src='../../images/save_icon.png'></image>
+            <view>保存</view>
+          </view>
+        </view>
+        <view class="cancel-btn" @tap='cancelShareA'>取消分享</view>
+        <view class="open-btn-wrap" wx:if="{{shareObj.isShowOpen}}">
+          <button class="icx-btn-same-sure" bindtap="openSetting">打开设置页，获取相机权限</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import Auth from '../../common/js/authProcess.js';
+import QQMapWX from '../../common/js/qqmap-wx-jssdk.js'
+var qqmapsdk = new QQMapWX({
+  key: 'EHRBZ-WB4WX-Y3B44-7ZHRB-SXYLQ-LSB6Z' // 必填
+});
+import { apiPartnerPayF,apiGetstatisticsApiF,
+  apiGetAccountMoneyF,apiEstimatedDataF,apiInviteNumF,apiGetMyShareF } from '../../services/mine';
+import miniPro from '../../utils/wepy-pro'
+import { apiInfoF } from '../../services/cart';
+import { apiPasePhoneF } from '../../services/login';
+export default class Mine extends wepy.page {
+  config = {
+    navigationBarBackgroundColor: '#F55249',
+    navigationBarTextStyle: 'white',
+    navigationBarTitleText: '我的',
+    enablePullDownRefresh:true //开启下拉刷新
+  };
+  components = {
+
+  };
+  data = {
+    shareUserId:"",
+    shareKey:"",
+    UserPhone:"",
+    inviteRecommended:"",//统计邀请会员数
+    allEstimatedAmount: "",//累计预估
+    todayEstimatedAmount: "",//今日预估
+    monthEstimatedAmount: "",//本月预估
+    invitId:"",
+    sessionKey:"",
+    accountBalance:"",
+    statistics:{
+      toPay: "",//待支付
+      toShip: "",//待发货
+      toSigned: "",//待签收/待收货
+      toEvaluation: ""//待评价
+    },
+    shareObj: {
+      goodShareImg: '',
+      goodShareUrl: '',
+      isShowSharePop: false,
+      isShowOpen: false
+    },
+    isMembers: false,
+    membersText: '',
+    pageData: {
+      userLevel: '', // 用户级别(0:普通用户 1：月卡会员 2：年卡会员)
+      userType: '', // 用户类型(0:普通用户 1：普通合伙人 2：高级合伙人 3：代购合伙人)
+    },
+    isVipMonthCard: false
+  };
+
+  methods = {
+    invite(){
+      this.apiGetMyShareFA(this.apiGetMyShareFA.bind(this))
+    },
+    cancelShareA() {
+      this.shareObj.isShowSharePop = false
+    },
+    saveA() {
+      let _this = this
+      //获取相册授权
+      wx.getSetting({
+        success(res) {
+          if (!res.authSetting['scope.writePhotosAlbum']) {
+            wx.authorize({
+              scope:'scope.writePhotosAlbum',
+              success() {
+                _this.downLoadA()
+              },
+              fail() {
+                _this.downLoadA()
+              }
+            })
+          } else {
+            _this.downLoadA()
+          }
+        }
+      })
+    },
+    openSetting() {
+      let _this = this
+      wepy.openSetting({
+        success(settingdata) {
+          _this.shareObj.isShowOpen = false
+          _this.$apply()
+          if (settingdata.authSetting['scope.writePhotosAlbum']) {
+            _this.downLoadA()
+          } else {
+            miniPro.showToast('获取权限失败，无法保存')
+          }
+        }
+      })
+    },
+    toAccountRecord(){
+      wepy.navigateTo({ url: '/pages/packageMine/accountRecord/index' });
+    },
+    memberInfo(){
+      wepy.navigateTo({ url: '/pages/packageMine/inviteNumDetails/index' });
+    },
+    indexRecord(){
+      wepy.navigateTo({ url: '/pages/packageMine/indexRecord/index' });
+    },
+    withdrawal(){
+      let money = this.accountBalance
+      wepy.navigateTo({ url: `/pages/packageMine/withdrawal/index?money=${money}`});
+    },
+    withrawRecord(){
+      wepy.navigateTo({ url: '/pages/packageMine/withdrawalsRecord/index' });
+    },
+    scanA() {
+      wx.scanCode({ //扫码
+        success: (res) => {
+          console.log(res)
+        }})
+    },
+    jumpH5A() {
+      // let url = 'https://720yun.com/t/15vkn9fm71h?scene_id=29681526'
+      // miniPro.toWebView(url)
+    },
+    toBulkOrderA() {
+      wepy.navigateTo({ url: '/pages/packageMine/bulkOrder/index' });
+    },
+    toAddressListA() {
+      wepy.navigateTo({ url: '/pages/packageMine/addressList/index' });
+    },
+    membersA() {
+      wepy.navigateTo({ url: '/pages/packageMine/joinMembers/index' });
+      // if (this.isMembers) {
+      //   wepy.navigateTo({ url: '/pages/packageMine/memberDocument/index' });
+      // } else {
+      //   wepy.navigateTo({ url: '/pages/packageMine/joinMembers/index' });
+      // }
+    },
+    watchPrivilege(){
+      wepy.navigateTo({ url: '/pages/packageMine/memberDocument/index' });
+    },
+    toMoreA() {
+      wepy.navigateTo({ url: '/pages/packageMine/more/index' });
+    },
+    toCollectionA() {
+      wepy.navigateTo({ url: '/pages/packageMine/collection/index' });
+    },
+    toFootprintA() {
+      wepy.navigateTo({ url: '/pages/packageMine/footprint/index' });
+    },
+    toAfterSales() {
+      wepy.navigateTo({ url: '/pages/packageMine/afterSales/index' });
+    },
+    toOrderTapA(index) {
+      wepy.navigateTo({ url: `/pages/packageMine/order/index?current=${index}` });
+    },
+    gooutUrl(){
+      wepy.navigateTo({ url: `/pages/packageMine/order/index?current=${index}` });
+    }
+  };
+  downLoadA() {
+    let _this = this
+    wepy.downloadFile({
+      url: _this.shareObj.goodShareUrl,
+      success: function (res) {
+        //图片保存到本地
+        wepy.saveImageToPhotosAlbum({
+          filePath: res.tempFilePath,
+          success: function (data) {
+            miniPro.showToast('保存成功');
+            setTimeout(() => {
+              _this.shareObj.isShowSharePop = false;
+              _this.$apply()
+            }, 800)
+          },
+          fail: function (err) {
+            if (err.errMsg === "saveImageToPhotosAlbum:fail auth deny") {
+              _this.shareObj.isShowOpen = true
+              _this.$apply()
+            }
+          },
+          complete(res){
+          }
+        })
+      }
+    })
+  }
+  apiGetMyShareFA(fun) {
+    var _self = this
+    apiGetMyShareF(fun).then(msg => {
+      this.shareObj.isShowSharePop = true
+      this.shareObj.goodShareUrl = msg.poster
+      this.$apply();
+    }).catch(() => { });
+  }
+  getPhoneNumber(e) { //生成邀请码 -> 绑定手机号授权
+    if (e.detail.errMsg == 'getPhoneNumber:fail user deny' || e.detail.errMsg == 'getPhoneNumber:fail:user deny') {  //拒绝授权
+      miniPro.showToast("拒绝授权无法为您生成邀请链接，请重新点击生成！")
+    }else{
+      let _self = this
+      let iv = e.detail.iv;
+      let encryptedData = e.detail.encryptedData;
+      let signature = this.$parent.globalData.userInfo.signature;
+      let rawData = this.$parent.globalData.userInfo.rawData;
+      let sessionKey = this.sessionKey
+      let param = {
+        signature:signature,
+        rawData:rawData,
+        encryptedData:encryptedData,
+        iv:iv,
+        sessionKey:sessionKey
+      }
+      apiPasePhoneF({ miniprogramParam: JSON.stringify(param) }).then(res => {
+        miniPro.showToast("已为您生成邀请码链接，现在可以邀请好友了！")
+        setTimeout(() => {
+          this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //获取用户信息 查询phone
+        },1500)
+      }).catch(err => {
+      })
+    }
+
+
+  }
+
+  apiPartnerPayFA(fun) {
+    apiPartnerPayF(fun).then(msg => {
+      miniPro.requestPayment(msg).then((result) => {
+        miniPro.showToast('支付成功')
+        setTimeout(() => {
+          this.onShow()
+        }, 1500)
+      }).catch(() => {
+        miniPro.showToast('调用失败')
+        setTimeout(() => {
+          this.onShow()
+        }, 1500)
+      });
+    }).catch((e) => {console.log('e',e) })
+  }
+
+  async apiGetstatistics(fun){
+    let t = this
+    await apiGetstatisticsApiF(fun).then((result) => {
+      t.statistics = result
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  async apiGetAccountMoney(fun){
+    let t = this
+    await apiGetAccountMoneyF(fun).then((result) => {
+      let moneyFix = (result.balance)/100  //分 -> 元
+      t.accountBalance = moneyFix.toFixed(2)
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  async apiInviteNum(fun){
+    let t = this
+    await apiInviteNumF(fun).then((result) => {
+      t.inviteRecommended = result.recommended
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  async apiEstimatedData(fun){
+    let t = this
+    await apiEstimatedDataF(fun).then((result) => {
+      let {allEstimatedAmount,todayEstimatedAmount,monthEstimatedAmount} = result
+      t.allEstimatedAmount = (allEstimatedAmount/100).toFixed(2)
+      t.todayEstimatedAmount = (todayEstimatedAmount/100).toFixed(2)
+      t.monthEstimatedAmount = (monthEstimatedAmount/100).toFixed(2)
+      t.$apply()
+    }).catch((err) => {
+    });
+  }
+  async apiGetInfoFA(fun) { //获取用户信息
+    let _self = this
+    await apiInfoF(fun).then(msg => {
+      let _userLevel = msg.userLevel
+      let _membersText = ''
+      if (_userLevel == 1) {
+        _membersText = '月卡会员'
+        this.isMembers = true
+        this.isVipMonthCard = true
+      } else if (_userLevel == 2) {
+        _membersText = '年卡会员'
+        this.isVipMonthCard = false
+        this.isMembers = true
+      } else {
+        _membersText = ''
+        this.isMembers = false
+      }
+      this.membersText = _membersText
+      _self.invitId = msg.userId
+      _self.sessionKey = msg.sessionKey //绑定手机号携带的参数
+      _self.UserPhone = msg.phone
+      _self.shareUserId = msg.userId
+      _self.shareKey = Math.random().toString(21).substr(4);
+      _self.$apply();
+    }).catch(() => { });
+  }
+  onShareAppMessage(res) {
+    if (res.from === 'button') {
+      // 来自页面内转发按钮
+    }
+    // let _userId = this.shareUserId
+    let _userId = this.invitId
+    let _sk = this.shareKey //10长度随机码 字母数字组合
+    let url = '/pages/index/index?si=' + _userId + '&sk=' + _sk;
+    return {
+      title: '真成优选',
+      path: url,
+      imageUrl: ''
+    };
+  }
+  onLoad() {
+
+  }
+  async onShow() {
+    await this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //获取用户信息 会员等级
+    await this.apiEstimatedData(this.apiEstimatedData.bind(this)) //统计预估数据
+    await this.apiGetstatistics(this.apiGetstatistics.bind(this)) //统计订单数量num
+    await this.apiGetAccountMoney(this.apiGetAccountMoney.bind(this))//统计账户余额
+    await this.apiInviteNum(this.apiInviteNum.bind(this)) //统计邀请的数据
+  }
+  onPullDownRefresh(){  //下拉刷新
+    this.apiGetInfoFA(this.apiGetInfoFA.bind(this))//获取用户信息
+    this.apiEstimatedData(this.apiEstimatedData.bind(this))//统计预估数据
+    this.apiInviteNum(this.apiInviteNum.bind(this))//统计邀请的数据
+    this.apiGetstatistics(this.apiGetstatistics.bind(this))//统计订单数量num
+    this.apiGetAccountMoney(this.apiGetAccountMoney.bind(this))//统计账户余额
+    setTimeout(() => {
+      wx.stopPullDownRefresh()
+      miniPro.showToast("刷新成功")
+    },1500)
+  };
+}
+</script>
+<style lang="scss" scoped>
+@import './index.scss';
+</style>

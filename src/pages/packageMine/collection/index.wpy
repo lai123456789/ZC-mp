@@ -1,0 +1,62 @@
+<template>
+  <view class='collection-ctner'>
+    <repeat for="{{collectionArr}}" key="index" index="index" item="item">
+      <CatItem class='cat-itme-wrap' :item="item"></CatItem>
+    </repeat>
+    <view class="collection-no" wx:if="{{collectionArr.length == 0}}">
+      <view class="in">
+        <image src='../../../images/clection_icon.png'></image>
+        <view>暂无收藏</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import CatItem from '@/components/CollectionGoodCom/index';
+import { apiCollectFindPageF } from '../../../services/mine/index'
+import miniPro from '@/utils/wepy-pro.js';
+import UrlNavigate from '../../../utils/wepyNavigate';
+
+export default class Collection extends wepy.page {
+  config = {
+    // navigationBarBackgroundColor: '#09103b',
+    // navigationBarTextStyle: '#FFF',
+    navigationBarTitleText: '我的收藏'
+  };
+  components = {
+    CatItem: CatItem
+  };
+  data = {
+    item: { check: false, num: 1, name: '彩色甜甜圈牛肉味1' },
+    collectionArr: []
+  };
+  methods = {}
+
+  events = {
+    'look-event': function (id,shareKey,shareUserId,room_id) {
+      let url = '/pages/packageIndex/goodsDetail/index'
+      UrlNavigate(url,{goodsId:id,sk:shareKey,si:shareUserId,collect_room_id:room_id});
+      // miniPro.toGoodsDetail(id, group)
+    }
+  }
+
+  apiCollectFindPageA(fun) {
+    apiCollectFindPageF({
+      page: 0,
+      limit: 200
+    }, fun).then((result) => {
+      let { rows = [] } = result
+      this.collectionArr = rows
+      this.$apply()
+    }).catch(() => { });
+  }
+  onLoad() {
+    this.apiCollectFindPageA(this.apiCollectFindPageA.bind(this))
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

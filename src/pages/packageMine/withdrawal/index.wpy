@@ -1,0 +1,172 @@
+<template>
+  <view class='withdrawal-ctner'>
+    <view class="withdrawal-inner">
+      <view class="account"  @tap="inputPop">
+        <view>到账支付宝</view>
+        <view>
+          <text wx:if="{{changValAccount == '' || changValName == ''}}">请点击输入支付宝账号</text>
+          <text wx:else>{{changValAccount}}({{changValName}})</text>
+          <image src="../../../images/jian.png"></image>
+        </view>
+      </view>
+      <view class="money-outer">
+        <view class="money-title">提现金额</view>
+        <view class="money-num">
+          <view>￥</view>
+          <input value="{{moneyTi}}" @input="bindinput" type='number' maxlength='200' class='icx-input' placeholder-class='icx-placeholder' placeholder="请输入金额" />
+        </view>
+        <view class="money-action" wx:if="{{!isOver}}">
+          <view>可提现金额 ¥{{moneyTotal}}</view>
+          <view hover-class="icx-click-hover" @tap='tiAllA'>全部提现</view>
+        </view>
+        <view class="money-action is-over" wx:if="{{isOver}}">
+          超过提现金额
+        </view>
+      </view>
+    </view>
+    <button hover-class="icx-click-hover" class="icx-btn-same-sure" @tap='toWithdrawalA'>提现</button>
+  </view>
+  <modal wx:if="{{showModal}}">
+    <view class="modal-content" id="apply" >
+      <view class="content-exchang">
+        <view class="btn-content">
+          <view class="text">
+            <view>
+              <text>账号：</text>
+              <input  maxlength='200' class='icx-input' placeholder-class='icx-placeholder'
+                      value="{{changValAccount}}"   placeholder="请输入支付宝账号"  @input="bindinputAccount"/>
+            </view>
+            <view>
+              <text>姓名：</text>
+              <input  maxlength='200' class='icx-input' placeholder-class='icx-placeholder'
+                      value="{{changValName}}"   placeholder="请输入收款人姓名 "  @input="bindinputName"/>
+            </view>
+            <view>
+              <text>电话：</text>
+              <input  maxlength='200' class='icx-input' placeholder-class='icx-placeholder'
+                      value="{{changValPhone}}"   placeholder="请输入收款人联系方式"  @input="bindinputPhone"/>
+            </view>
+          </view>
+        </view>
+        <view class="btn-bottom">
+          <button @tap="cancelInputPop()">取消</button>
+          <button catchtap="sureInputPop()">确定</button>
+        </view>
+      </view>
+    </view>
+    <!--      <view slot="first">具名插槽</view>-->
+    <view slot="button-right">这块内容可以显示在子组件的slot name为button-right</view>
+  </modal>
+
+</template>
+
+<script>
+import wepy from 'wepy'
+import miniPro from '@/utils/wepy-pro.js';
+import {
+  apiPartnerWithdrawalApplyF // 合伙人提现
+} from '../../../services/mine/index'
+import modal from '@/components/modal/index'
+export default class Withdrawal extends wepy.page {
+  config = {
+    navigationBarTitleText: '提现'
+  };
+  components = {
+    modal:modal
+  };
+  events = {
+    'showModal': (value) => {
+      console.log(value)
+      this.showModal = value
+      this.$apply()
+    },
+  }
+  data = {
+    changValName:"",
+    changValAccount:"",
+    changValPhone:"",
+    showModal:false,
+    moneyTotal: 0,
+    moneyTi: '',
+    isOver: false
+  };
+  methods = {
+    inputPop(){
+      this.showModal = true
+    },
+    cancelInputPop(){
+      this.showModal = false
+    },
+    sureInputPop(){
+      this.showModal = false
+    },
+    bindinputName(e){
+      this.changValName = e.detail.value
+    },
+    bindinputAccount(e){
+      this.changValAccount = e.detail.value
+    },
+    bindinputPhone(e){
+      this.changValPhone = e.detail.value
+    },
+    bindinput(e) {
+      let _value = Number(e.detail.value)
+      let _tol = Number(this.moneyTotal)
+      if (_tol < _value) {
+        this.isOver = true
+      } else {
+        this.isOver = false
+        this.moneyTi = _value
+      }
+    },
+    tiAllA() {
+      this.moneyTi = this.moneyTotal
+    },
+    toWithdrawalA() {
+      if (this.isOver) {
+        miniPro.showToast('超过了本次提现金额')
+        return
+      }
+      if (this.moneyTi == '' || this.moneyTi < 50) {
+        miniPro.showToast('满50元起才能提现！')
+        return
+      }
+      if(this.changValName == ''){
+        miniPro.showToast('请输入收款人姓名')
+        return
+      }
+      if(this.changValAccount == ''){
+        miniPro.showToast('请输入收款账号')
+        return
+      }
+      if(this.changValPhone == ''){
+        miniPro.showToast('请输入收款人联系方式')
+        return
+      }
+      this.apiPartnerWithdrawalApplyFA(this.apiPartnerWithdrawalApplyFA.bind(this))
+    }
+  }
+  apiPartnerWithdrawalApplyFA(fun) {
+    let param = {
+      amount: this.moneyTi,//提现金额数
+      payee: this.changValName,//收款人
+      accountNumber: this.changValAccount,//收款账户
+      payeePhone: this.changValPhone//收款人联系方式
+    }
+    apiPartnerWithdrawalApplyF(param, fun).then((result) => {
+      miniPro.showToast('提现申请已提交，请等候工作人员审核通知结果！')
+      setTimeout(() => {
+        wepy.switchTab({ url: `/pages/mine/index`})
+      },2000)
+    }).catch(() => {
+    })
+  }
+  onLoad(option) {
+    let _money = option.money || 0
+    this.moneyTotal = _money
+  }
+}
+</script>
+<style lang="scss" scoped>
+@import './index'
+</style>

@@ -1,0 +1,385 @@
+<template>
+  <view class='goods-detail-ctner'>
+    <import src="../../../common/wxParse/wxParse.wxml"/>
+    <view class="goods-con-outer">
+      <view class="goods-banner"  style="height: {{Hei}};line-height: {{Hei}}">
+        <swiper
+          indicator-dots="{{indicatorDots}}"
+          autoplay="{{autoplay}}"
+          interval="{{interval}}"
+          duration="{{duration}}"
+          indicator-color='#999'
+          indicator-active-color='#FFF'
+          circular = 'true'
+          style='height:100%' >
+          <block wx:for="{{bannerList}}"   wx:key="indx" wx:for-index="index" data-index="{{index}}">
+            <swiper-item style="height: 100%; display: flex;align-items: center">
+<!--              <image src="{{item.bannerPath}}"  class="slide-image {{item.style}}" data-index="{{index}}"  bindload="imgF"/>-->
+              <image src="{{item.bannerPath}}" style="width: 100%;" class="{{item.isSquare ? 'active' : ''}}"/>
+            </swiper-item>
+          </block>
+        </swiper>
+      </view>
+
+      <view class="goods-des-outer">
+
+        <view class="tuan-price-outer">
+          <text>{{info.groupNumber}}人团</text>
+          <text>￥{{info.groupPrice}}</text>
+          <text>￥{{info.originalPrice}}</text>
+          <view class="right-index"  wx:if="{{ day !==0 && hours !== 0 }}">
+            <view class="rightText">
+              <text>距离结束仅剩</text>
+              <br>
+              <text>{{timeText}}</text>
+            </view>
+          </view>
+
+        </view>
+
+        <view class="tuan-des-outer">
+          <text>【{{info.groupNumber}}人团】{{info.goodsName}}</text>
+            <text>{{info.groupPrice}}元/{{info.unit}}</text>
+          <view class="already-number">
+            <text>已团{{info.goodsSales}}件</text>
+          </view>
+        </view>
+
+        <block wx:if="{{groupList.length > 0 }}">
+          <view class="tuan-rule-outer">
+            <view class="tule-tip" bindtap="toShowModal">
+              <view>他们正在开团，点击直接参与</view>
+              <view>查看更多</view>
+              <image src='../../../images/unfold.png'></image>
+            </view>
+            <view class="rule-detail">
+              <view class="content-index" wx:for="{{groupList}}" wx:key="groupIndex">
+                <view class="V1">
+                  <image src="{{item.headImage}}" alt=""></image>
+                  <text>{{item.nickName}}</text>
+                </view>
+                <view  class="V2">
+                  <view  class="right-content">
+                    <view>差{{item.lackNumber}}人成团</view>
+                    <veiw class="time-content">
+                      <text>剩余时间：</text>
+                      <text class="timeColor">{{item.difftime}}</text>
+                    </veiw>
+                  </view>
+                  <image src="../../../images/gocan.png" alt=""  @tap='goDelegation({{item}})'></image>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+
+      </view>
+      <view class="G-line"></view>
+      <!-- <view class="bulk-tips">图文详情</view> -->
+      <view class="goods-detail">
+        <template is="wxParse" data="{{wxParseData:Detail.nodes}}"/>
+      </view>
+    </view>
+
+    <view class="goods-bottom">
+      <view class="gb-kf" @tap="goHome">
+        <button class="icx-btn">
+          <image src='../../../images/main.png'></image>
+          <view>首页</view>
+        </button>
+      </view>
+      <view @tap='buyNowA' hover-class='icx-click-hover' class="gb-buy">
+        <text>￥{{info.groupPrice}}</text>
+        <text>一键开团</text>
+        <text>（单买价</text>
+        <text>￥{{info.originalPrice}}</text>
+        <text>）</text>
+      </view>
+
+
+
+    </view>
+
+
+
+  </view>
+
+  <!--custom Modal   查看更多弹框-->
+  <view class="modal-mask" bindtap="hideModal" wx:if="{{showModal}}">
+  </view>
+  <view wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="header">
+        <view>·正在开团·</view>
+        <image src="../../../images/close.png" @tap="hideModal"></image>
+      </view>
+      <view class="content-index-bottom"  wx:for="{{groupListMore}}" wx:key="groupIndex">
+        <view class="V3">
+          <image src="{{item.headImage}}" alt=""></image>
+          <text>{{item.nickName}}</text>
+        </view>
+        <view  class="V4">
+          <view  class="right-content">
+            <veiw class="time-content">
+              <text>剩余时间：</text>
+              <text>{{item.difftime}}</text>
+            </veiw>
+          </view>
+          <image src="../../../images/gocan.png" alt=""   @tap='goDelegation({{item}})'></image>
+        </view>
+      </view>
+
+      <view class="bottom">
+        <view>最多显示10团</view>
+      </view>
+    </view>
+  </view>
+
+  <!--phone Modal   绑定手机号授权提示弹框-->
+  <view class="modal-mask" bindtap="hideModalPhone" wx:if="{{showModalPhone}}">
+  </view>
+  <view wx:if="{{showModalPhone}}">
+    <view class="modal-content">
+      <view class="content-exchang">
+        <view class="btn-content">
+          <view class="text">
+            <view class="text1">
+              <image src="https://zcmall-1259120104.cos.ap-guangzhou.myqcloud.com/ZC_mp_sources/images/setting_1.png"></image>
+            </view>
+            <view class="text2">为了提供更好的服务</view>
+            <view class="text3">请在稍后的提示框中点击允许</view>
+            <button class="icx-btn-colorBg-whiteText  text4" @tap="cancelInputPop"
+                    open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">我知道了</button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {
+    apiGetGroupBuyInfoF
+  } from '../../../services/index'
+  import countDown from '../../../utils/date';
+  import dateFormat from '../../../utils/base/dateFormat';
+  import WxParse from '../../../common/wxParse/wxParse.js'
+  import miniPro from '@/utils/wepy-pro.js';
+  import { apiInfoF } from '../../../services/cart';
+  import { apiPasePhoneF } from '../../../services/login';
+export default class Info extends wepy.page {
+    config = {
+      navigationBarTitleText: '拼团详情'
+    };
+    components = {
+    };
+    data = {
+      sysWidth: wx.getSystemInfoSync().windowWidth,
+      showModal:false,
+      showModalPhone:false,
+      goodsName: '',
+      indicatorDots: false,
+      showRuleTip: false,
+      autoplay: true,
+      interval: 5000,
+      duration: 1000,
+      info:[],
+      bannerList:[],
+      groupList:[],
+      groupListMore: [],
+      itemEndTime:[],
+      timestampItem:[],
+      wxData: "",
+      endTimeCountdown:"",
+      day:'',  // 设定天，存在这个变量
+      hours: '', // 设定小时，存在这个变量
+      minutes: '', // 设定分，存在这个变量
+      seconds: '', // 设定秒，存在这个变量
+      timeText: '',
+      timeOut: '',
+      Hei:''
+    };
+
+    methods = {
+      toShowModal(e) { //这里开始
+        this.showModal = true
+      },
+      hideModal() {
+        this.showModal = false
+      },
+      hideModalPhone(){
+        this.showModalPhone = false
+      },
+      cancelInputPop(){
+        this.showModalPhone = false
+      },
+      goDelegation(e) {
+        wepy.navigateTo({ url: `/pages/groupBuy/OnekeyDelegation/index?groupId=` + e.groupId})
+      }
+
+    };
+  getPhoneNumber(e) {
+    if (e.detail.errMsg == 'getPhoneNumber:fail user deny') {  //拒绝授权
+      miniPro.showToast("拒绝授权无法为您提供更好的服务，请点击允许授权哦！")
+      this.showModalPhone = true
+    }else{ //允许授权
+      let that = this;
+      let iv = e.detail.iv;
+      let encryptedData = e.detail.encryptedData;
+      let signature = this.$parent.globalData.userInfo.signature;
+      let rawData = this.$parent.globalData.userInfo.rawData;
+      let sessionKey = this.sessionKey
+      let param = {
+        signature:signature,
+        rawData:rawData,
+        encryptedData:encryptedData,
+        iv:iv,
+        sessionKey:sessionKey
+      }
+      apiPasePhoneF({ miniprogramParam: JSON.stringify(param) }).then(res => {
+        miniPro.showToast("绑定手机号成功")
+      }).catch(err => {
+      })
+    }
+
+
+  }
+
+  apiGetInfoFA(fun) { //获取用户信息 手机号
+    let _self = this
+    apiInfoF(fun).then(msg => {
+      if(!msg.phone){  //未绑定手机号 弹框让用户授权绑定手机号
+        this.showModalPhone = true
+      }
+      _self.sessionKey = msg.sessionKey
+      _self.userId = msg.userId
+      _self.sk = Math.random().toString(21).substr(4);
+      _self.$apply();
+    }).catch(() => { });
+  }
+    apiGetGroupBuyInfoA(fun) {
+      let indexId = this.indexId
+      let _this = this
+      var myTimer;
+      apiGetGroupBuyInfoF(indexId, fun).then(msg => {
+        _this.info = msg;
+        let itemEndTime = []
+        for(let x in msg.groupList){
+          if(x <= 1){
+            _this.groupList[x] = msg.groupList[x];
+          }
+          if(x <= 10){
+            _this.groupListMore[x] = msg.groupList[x];
+            itemEndTime.push(_this.groupListMore[x].endTime)
+          }
+        }
+        _this.bannerList = msg.banners;
+        _this.endTimeCountdown = msg.endTime; //外层的倒计时时间
+        this.startTimer() //外层的倒计时特效
+        _this.itemEndTime = itemEndTime //每一项的倒计时时间
+        myTimer = setInterval(() => {
+          this.itemTimer() //每一项的倒计时特效
+        }, 1000);
+        let goodsDetail = msg.goodsDetail    //goodsDetail 后台返回的数据源
+        WxParse.wxParse('Detail', 'html', goodsDetail, _this, 5); //Detail表示绑定的字段 放到html处
+        this.$apply();
+      }).catch(() => {
+        wepy.navigateTo({ url: `/pages/groupBuy/index/index`})
+      });
+    }
+  imgH(e){
+    var winWid = wx.getSystemInfoSync().windowWidth;//获取当前屏幕的宽度
+    this.Hei = winWid + "px";
+    this.$apply();
+  };
+    onLoad(option) {
+      this.indexId = option.indexId || 0
+      this.apiGetInfoFA(this.apiGetInfoFA.bind(this)) //获取userId
+      this.apiGetGroupBuyInfoA(this.apiGetGroupBuyInfoA.bind(this))
+      this.imgH();
+    }
+    onShow(){
+    }
+    startTimer(){
+      let _this = this;
+      let end = _this.endTimeCountdown  //后端返回的结束时间
+      countDown(end,function(result) {
+          let timeText = result.day + "天" + result.hour + ":" + result.minute + ":" + result.second;
+          _this.timeText = timeText;
+          // _this.timeOut = result.interval;
+          _this.$apply();
+        })
+    };
+
+  itemTimer(){
+    let _this = this;
+    let end = _this.itemEndTime  //后端返回的结束时间数组
+    let timestampArr = []
+    for (let i in end){
+      let itemGetTime = end[i].replace(/\-/gi, "/")  //解决 ios 不能使用-链接符 要这种格式2019/11/23 （安卓ios通用，不会报错）
+      let EndGetTime = new Date(itemGetTime).getTime() //把时间数组转为时间戳格式
+      let timeNow = new Date().getTime();  // 获取当前时间
+      let a = dateFormat(timeNow,'yyyy/MM/dd hh:mm:ss')
+      let timeDistance = EndGetTime - timeNow
+      timestampArr.push(timeDistance)
+    }
+    console.log(timestampArr)
+    let all = []
+    let str
+    for(let x in timestampArr){
+      if(timestampArr[x] > 0){//转换时间
+        let intDay, intHour, intMinute, intSecond;
+        intDay = Math.floor(timestampArr[x] / 86400000)
+        timestampArr[x] -= intDay * 86400000;
+        intHour = Math.floor(timestampArr[x] / 3600000)
+        timestampArr[x] -= intHour * 3600000;
+        intMinute = Math.floor(timestampArr[x] / 60000)
+        timestampArr[x] -= intMinute * 60000;
+        intSecond = Math.floor(timestampArr[x] / 1000)
+        // 时分秒为单数时、前面加零站位
+        if (intHour < 10){
+          intHour = "0" + intHour;
+        }
+        if (intMinute < 10) {
+          intMinute = "0" + intMinute;
+        }
+        if (intSecond < 10) {
+          intSecond = "0" + intSecond;
+        }
+        str = intHour+"："+intMinute+"："+intSecond  //intDay+"天"+
+      }else{
+        str = "拼团超时"  //intDay+"天"+
+        // clearInterval(myTimer);
+        //   return
+      }
+      all.push(str)
+    }
+    _this.timestampItem = all
+    for (let i in _this.groupList){
+      _this.groupList[i].difftime = all[i]
+    }
+    for (let x in _this.groupListMore){
+      _this.groupListMore[x].difftime = all[x]
+    }
+  };
+    buyNowA(){
+      let id = this.indexId;
+      wepy.navigateTo({ url: `/pages/groupBuy/ConfirmOrder/index?createFlag=1&activityId=` + id })
+    };
+    goHome() {
+      wx.switchTab({ url: `/pages/index/index` })
+    }
+    onUnload(){
+      // clearInterval(this.timeOut);
+    }
+  };
+</script>
+<style lang="scss" scoped>
+  @import '../../../common/wxParse/wxParse.wxss';
+  @import './index';
+</style>

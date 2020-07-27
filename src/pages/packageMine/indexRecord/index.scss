@@ -1,0 +1,115 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+page{
+}
+.withdrawal-record-ctner {
+    background: #EEE;
+  .cs-scroll-outer{
+    .title-text{
+      @include borderTopOnePx;
+      overflow: hidden;
+      padding: rpx(20) 0 0 rpx(20);
+      background: #FFFFFF;
+      width:100%;
+      white-space:nowrap;
+      display: flex;
+      justify-content: space-around;
+      .nav{
+        display:inline-block;
+        white-space:normal;
+        text-align:center;
+        margin-right: rpx(35);
+        .nav-text{
+          line-height: rpx(55);
+          .nav-1{
+            view:nth-of-type(1){
+              font-weight: bold;
+              margin-bottom: rpx(10);
+              font-size: $size-30;
+              color: #000000;
+            }
+            view:nth-of-type(2){
+              line-height: rpx(40);
+              font-size: $size-24;
+              color: #666666;
+            }
+          }
+          .item-class {
+            border-bottom: rpx(6) solid $color-word-alarm;
+            view:nth-of-type(1){
+              color: $color-word-alarm;
+            }
+            view:nth-of-type(2){
+              color: $color-word-alarm;
+            }
+          }
+        }
+
+      }
+    }
+
+    .cat-container {
+      overflow: hidden;
+      padding: 0 rpx(25);
+      margin-top: rpx(13);
+      scroll-view{
+        .swiper-div-same {
+          width: 100%;
+          margin-bottom: rpx(30);
+          view {
+            margin-bottom: rpx(13);
+          }
+        }
+      }
+    }
+    .cat-container::-webkit-scrollbar{
+      display: none;
+
+    }
+
+  }
+
+  .withdrawal-index {
+    border-top: rpx(1) solid #EEE;
+    padding: rpx(30) rpx(48);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+
+    .withdrawal-left {
+      display: flex;
+      align-items: center;
+
+      .L1 {
+        image {
+          width: rpx(66);
+          height: rpx(66);
+        }
+      }
+
+      .L2 {
+        margin-left: rpx(10);
+
+        view {
+          line-height: rpx(40);
+        }
+
+        view:nth-of-type(1) {
+          color: #000000;
+          font-weight: bold;
+        }
+
+        view:nth-of-type(2) {
+          color: #666666;
+        }
+      }
+    }
+
+    .withdrawal-right {
+      font-size: rpx(32);
+      font-weight: bold;
+    }
+  }
+}

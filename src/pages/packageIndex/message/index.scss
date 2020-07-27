@@ -1,0 +1,57 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+page{
+    height: 100%;
+}
+.msg-ctner{
+    height: 100%;
+    .msg-has {
+        height: 100%;
+        padding: rpx(14) rpx(30);
+        background: #EEEEEE;
+        .msg-item {
+            padding: rpx(24) rpx(16);
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            margin-bottom: rpx(14);
+            border-radius: rpx(10);
+            .msg-img-left {
+                width: rpx(70);
+                height: rpx(70);
+            }
+            .msg-con {
+                flex: 1;
+                margin: 0 rpx(16);
+                view:nth-of-type(1) {
+                    font-size: rpx(22);
+                    margin-bottom: rpx(20);
+                }
+                view:nth-of-type(2) {
+                    font-size: rpx(20);
+                }
+            }
+            .msg-img-right {
+                width: rpx(11);
+                height: rpx(18);
+            }
+        }
+    }
+    .msg-no {
+        height: 100%;
+        padding: rpx(14) rpx(30);
+        background: #FFF;
+        text-align: center;
+        image {
+            width: rpx(162);
+            height: rpx(140);
+            margin: rpx(160) 0 rpx(16) 0;
+        }
+        view {
+            font-size: $size-unit;
+            color: $color-word-three;
+            
+        }
+    }
+}

@@ -1,0 +1,62 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+.order-no-data-ctner{
+  background: #FFF;
+  padding: rpx(20);
+  margin-bottom: rpx(6);
+  margin-top: rpx(-10);
+  .center-room{
+    margin-top: rpx(20);
+    .room-item{
+      width: 49%;
+      margin-bottom: rpx(10);
+      background: #FFF;
+      float: left;
+      overflow: hidden;
+      margin-left: 1%;
+      .room{
+        position: relative;
+        width: rpx(337);
+        height: rpx(340);
+        view:nth-of-type(1){
+          position: absolute;
+          left: 0;
+          height: rpx(43);
+          width: rpx(145);
+          top: 0;
+          border-radius: rpx(20);
+          text{
+            font-size: rpx(22);
+          }
+          image{
+            width: rpx(18);
+            height: rpx(20);
+            margin-left:rpx(8);
+          }
+        }
+        image{
+          width: 100%;
+          height: 100%;
+          border-radius: rpx(20);
+        }
+        view:nth-of-type(2){
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          height: rpx(70);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: bold;
+          background:rgba(0,0,0,0.2);
+          color: #FFFFFF;
+          border-bottom-left-radius: rpx(20);
+          border-bottom-right-radius: rpx(20);
+        }
+      }
+    }
+  }
+
+
+}

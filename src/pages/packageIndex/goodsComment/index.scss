@@ -1,0 +1,135 @@
+@import '../../../common/css/rpx.scss';
+@import '../../../common/css/const.scss';
+@import '../../../common/css/mixin.scss';
+page{
+}
+.goods-ctner {
+  .goods-des-comment{
+    .commentIndex{
+      padding: rpx(20) rpx(46);
+      .g1{
+        display: flex;
+        justify-content: space-between;
+        view:nth-of-type(1){
+          font-weight: bold;
+          font-size: rpx(28);
+        }
+        view:nth-of-type(2){
+          text{
+            font-size: rpx(24);
+            color: #666666;
+            margin-right: rpx(10);
+          }
+          image{
+            width: rpx(22);
+            height: rpx(21);
+            margin-right: rpx(5);
+          }
+        }
+      }
+    }
+    scroll-view{
+      view:last-child{
+        border-bottom: none !important;
+      }
+      .g-content{
+        padding: rpx(20) rpx(46);
+        margin-top: rpx(5);
+        border-bottom: rpx(5) solid #EDEDED;
+        view{
+          margin: rpx(7) 0;
+        }
+        .g-c1{
+          display: flex;
+          align-items: center;
+          image{
+            width: rpx(60);
+            height: rpx(60);
+            border-radius: 50%;
+            margin-right: rpx(8);
+          }
+          view{
+            .gc1{
+              overflow: hidden; //文本超出 省略号代替
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              width: rpx(140);//文本超出 省略号代替
+              font-size:rpx(22);
+              font-family:PingFang SC;
+              font-weight:500;
+              color:rgba(102,102,102,1);
+              line-height:rpx(28);
+            }
+            .gc2{
+              image{
+                width: rpx(18);
+                height: rpx(17);
+                margin-right: rpx(5);
+              }
+            }
+          }
+        }
+        .g-c2{
+          font-size:rpx(24);
+          font-family:PingFang SC;
+          font-weight:500;
+          color:rgba(0,0,0,1);
+          line-height:rpx(34);
+        }
+        .g-c3{
+          display: flex;
+          align-items: center;
+          view{
+            font-size:rpx(20);
+            font-family:PingFang SC;
+            font-weight:500;
+            color:rgba(102,102,102,1);
+            line-height:rpx(28);
+          }
+          .n{
+            overflow: hidden; //文本超出 省略号代替
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: rpx(180);//文本超出 省略号代替
+          }
+        }
+        .g-c4{
+          display: flex;
+          view{
+            image{
+              margin: rpx(5);
+              width: rpx(200);
+              height: rpx(200);
+            }
+          }
+        }
+        .g-c5{
+          background: #EEEEEE;
+          padding: rpx(15) rpx(10);
+          border-radius: rpx(10);
+          .gc-reply1{
+            color: #000000;
+            font-size: rpx(24);
+            display: flex;
+            align-items: center;
+            image{
+              width: rpx(22);
+              height: rpx(22);
+              margin-left: rpx(7);
+            }
+          }
+          .gc-reply2{
+            letter-spacing: rpx(1);
+            font-size: rpx(22);
+            color: #333333;
+            line-height: rpx(34);
+          }
+        }
+      }
+
+    }
+
+  }
+
+}
+
